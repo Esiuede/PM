@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste Final de Conexão</title>
+</head>
+<body>
+    <h1>Teste Final de Conexão</h1>
+    <p>Verificando a comunicação...</p>
+    <p id="status"></p>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxCX-wVxSvuWSMGPR-zsMhAcqRXydKPeIi-Vx-g18q8NkTnO_hb7t2vbXGRemgUOlCkAA/exec'; // Cole seu URL aqui
+
+        async function testarConexao() {
+            const statusElement = document.getElementById('status');
+            const testPayload = {
+                action: 'login',
+                login: 'bruno.sued',
+                senha: 'bs260699'
+            };
+
+            statusElement.textContent = 'Enviando requisição...';
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify(testPayload)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        statusElement.textContent = 'SUCESSO! A conexão e o login estão funcionando perfeitamente.';
+                        statusElement.style.color = 'green';
+                    } else {
+                        statusElement.textContent = 'ERRO DE VALIDAÇÃO! A conexão está OK, mas o login falhou na API. Isso indica um problema de dados na planilha.';
+                        statusElement.style.color = 'red';
+                    }
+                } else {
+                    statusElement.textContent = 'ERRO DE CONEXÃO! A API não está respondendo com sucesso. Verifique a URL e a implantação.';
+                    statusElement.style.color = 'red';
+                }
+            } catch (error) {
+                statusElement.textContent = 'FALHA CRÍTICA! O navegador bloqueou a requisição. O problema é de segurança (CORS) ou de rede.';
+                statusElement.style.color = 'red';
+                console.error(error);
+            }
+        }
+
+        testarConexao();
+    </script>
+</body>
+</html>

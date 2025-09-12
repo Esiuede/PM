@@ -1,0 +1,197 @@
+/* Paleta baseada na logo */
+:root {
+  --primary-color: #5C3A2E; /* marrom da logo */
+  --secondary-color: #E7C9A9; /* bege do fundo */
+  --text-dark: #2c2c2c;
+  --text-light: #ffffff;
+  --background: #fdfbf9;
+  --border-radius: 12px;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Fundo geral */
+body {
+  background-color: var(--background);
+  color: var(--text-dark);
+  padding: 0;
+  margin: 0;
+}
+
+/* Header */
+.header {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  padding: 15px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  background-color: transparent;
+  border: 2px solid var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.brand-title {
+  font-size: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--primary-color);
+}
+
+.brand-sub {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--primary-color);
+}
+
+/* Formulários */
+form {
+  max-width: 800px;
+  margin: 30px auto;
+  background: var(--text-light);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+form input, 
+form select, 
+form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+form button {
+  background: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+form button:hover {
+  background: #44291f;
+}
+
+/* Tabelas */
+table {
+  width: 90%;
+  margin: 30px auto;
+  border-collapse: collapse;
+  background: var(--text-light);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+table th, table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 14px;
+}
+
+table th {
+  background: var(--secondary-color);
+  color: var(--primary-color);
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+table tr:hover {
+  background: #f9f2ec;
+}
+
+/* Botões de ação */
+.action-btn {
+  padding: 6px 12px;
+  margin: 0 5px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+}
+
+.edit-btn {
+  background: #f4a261;
+  color: #fff;
+}
+
+.edit-btn:hover {
+  background: #e07a2d;
+}
+
+.delete-btn {
+  background: #e63946;
+  color: #fff;
+}
+
+.delete-btn:hover {
+  background: #b42b36;
+}
+
+/* Estilos para os grupos de checkbox */
+.checkbox-group {
+  display: flex; /* Usa flexbox para alinhamento horizontal */
+  flex-direction: column; /* Coloca os itens em coluna */
+  gap: 10px; /* Espaçamento entre os checkboxes */
+  margin-bottom: 15px; /* Espaço abaixo do grupo */
+}
+
+.checkbox-group label {
+  display: flex; /* Faz com que cada label seja um container flex */
+  align-items: center; /* Centraliza verticalmente o checkbox e o texto */
+  gap: 8px; /* Espaço entre o checkbox e o texto "Superior" ou "Inferior" */
+  font-weight: normal; /* Garante que o texto não fique em negrito, se for o caso */
+  color: var(--text-dark); /* Cor do texto */
+}
+
+/* Opcional: ajustar o tamanho do checkbox se necessário */
+.checkbox-group input[type="checkbox"] {
+  width: auto; /* Deixa o navegador definir a largura padrão */
+  margin: 0; /* Remove margens padrão */
+  /* Você pode ajustar o tamanho se quiser, por exemplo: */
+  /* transform: scale(1.2); */ 
+}

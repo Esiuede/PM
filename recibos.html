@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Recibos - Sheyla Cavalcanti</title>
+  <link rel="stylesheet" href="style_full.css">
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="brand-logo"><img src="./imgs/logo.jpg" width="56" height="56"></div>
+      <div>
+        <div class="brand-title">Sheyla Cavalcanti</div>
+        <div class="brand-sub">Laboratório de Prótese Dentária</div>
+      </div>
+    </div>
+  </header>
+
+  <main style="padding: 20px;">
+    <h2>Recibos Cadastrados</h2>
+    <a href="cadastro.html" class="action-btn" style="background: var(--primary-color); color: var(--text-light); padding: 8px 16px; border-radius: 8px; text-decoration: none; display: inline-block; margin-bottom: 20px;">+ Novo Recibo</a>
+    <a href="menu.html" class="action-btn" style="background: #ccc; color: var(--text-dark); padding: 8px 16px; border-radius: 8px; text-decoration: none; display: inline-block; margin-bottom: 20px;">Voltar ao Menu</a>
+    
+    <input type="text" id="filtroNome" placeholder="Filtrar por nome" style="width: 100%; padding: 8px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ccc;">
+
+    <table id="recibosTable">
+      <thead>
+        <tr>
+          <th>Nº Recibo</th>
+          <th>Nome</th>
+          <th>Modelo</th>
+          <th>Quantidade</th>
+          <th>Tipo</th>
+          <th>Prova</th>
+          <th>Entrega</th>
+          <th>Valor R$</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        </tbody>
+    </table>
+  </main>
+
+  <script src="recibos.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>CRUD Recibos - Dental</title>
+  <link rel="stylesheet" href="style_full.css">
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="brand-logo"><img src="./imgs/logo.jpg" width="56" height="56"></div>
+      <div>
+        <div class="brand-title">Sheyla Cavalcanti</div>
+        <div class="brand-sub">Laboratório de Prótese Dentária</div>
+      </div>
+    </div>
+  </header>
+  
+
+  <form id="reciboForm">
+    <input type="text" name="nome" placeholder="Nome" required>
+    <input type="text" name="cor" placeholder="Cor">
+    <input type="text" name="modelo" placeholder="Modelo">
+    <input type="text" name="quantidade" placeholder="Quantidade">
+    <input type="text" name="material" placeholder="Material Usado">
+    
+    <label for="valor">Valor:</label>
+    <input type="text" id="valor" name="valor" placeholder="R$ 0,00" required>
+    
+    <h6>Dia de Prova e Hora</h6>
+    <input type="date" name="diaProva">
+    <input type="time" name="horaProva">
+    <h6>Dia de Entrega e Hora</h6>
+    <input type="date" name="dataEntrega">
+    <input type="time" name="horaEntrega">
+    
+    <div class="checkbox-group">
+      <label><input type="checkbox" name="superior"> Superior</label>
+      <label><input type="checkbox" name="inferior"> Inferior</label>
+    </div>
+    
+    <label for="recibo">Nº Recibo:</label>
+    <input type="text" id="recibo" name="recibo" readonly>
+
+    <button type="submit">Salvar</button>
+    <a href="menu.html" class="action-btn" style="background: #ccc; color: var(--text-dark); text-decoration: none; margin-left: 10px;">Voltar ao Menu</a>
+  </form>
+
+  <script src="script.js"></script>
+</body>
+</html>
