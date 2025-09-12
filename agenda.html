@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Agenda - Sheyla Cavalcanti</title>
+  <link rel="stylesheet" href="style_full.css">
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="brand-logo"><img src="./imgs/logo.jpg" width="56" height="56"></div>
+      <div>
+        <div class="brand-title">Sheyla Cavalcanti</div>
+        <div class="brand-sub">Laboratório de Prótese Dentária</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="agenda-container">
+    <h2>Agenda da Semana</h2>
+    <a href="menu.html" class="action-btn" style="background: #ccc; color: var(--text-dark); text-decoration: none; margin-bottom: 20px;">Voltar ao Menu</a>
+
+    <div class="calendar-nav">
+      <button id="prevWeek" class="nav-btn">&lt;</button>
+      <div id="weekDates"></div>
+      <button id="nextWeek" class="nav-btn">&gt;</button>
+    </div>
+
+    <div id="kanban-board">
+      </div>
+  </main>
+
+  <script src="agenda.js"></script>
+</body>
+</html>
