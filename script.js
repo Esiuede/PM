@@ -3,10 +3,54 @@ document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(window.location.search);
     const reciboId = params.get('id');
     const reciboInput = document.getElementById('recibo');
-    const valorInput = document.getElementById('valor');
     
-    // Substitua pelo URL do seu Apps Script
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwTKH8E4uyOd0Kt6OS2xHfFMrtdSDIh8CrxLV8fGhlLxy7TYHvl1Dw1JpsQmNL44JlxIQ/exec';
+    const valorTotalInput = document.getElementById('valorTotal');
+    const valorEntradaInput = document.getElementById('valorEntrada');
+    const valorRestanteInput = document.getElementById('valorRestante');
+    const dataReciboInput = document.getElementById('dataRecibo');
+    const tipoPagamentoInput = document.getElementById('tipoPagamento');
+    
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwMX1U61B2ArlEoQJu4i8SiD14NNdRbi0CSGrj7yPoK6zbC91oU4ZmqGNiv1aCg5YpKww/exec';
+
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    dataReciboInput.value = formattedDate;
+
+    function formatarMoeda(value) {
+        let numericValue = value.replace(/\D/g, '');
+        if (!numericValue) return '';
+        
+        let cents = numericValue.slice(-2);
+        let reais = numericValue.slice(0, -2);
+        
+        reais = reais.split('').reverse().join('').match(/.{1,3}/g);
+        reais = reais.join('.').split('').reverse().join('');
+        
+        return `R$ ${reais},${cents}`;
+    }
+
+    function calcularValorRestante() {
+        const valorTotal = parseFloat(valorTotalInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.')) || 0;
+        const valorEntrada = parseFloat(valorEntradaInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.')) || 0;
+        const valorRestante = valorTotal - valorEntrada;
+        
+        const formattedRestante = new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(valorRestante);
+        
+        valorRestanteInput.value = formattedRestante;
+    }
+    
+    valorTotalInput.addEventListener('input', (e) => {
+        e.target.value = formatarMoeda(e.target.value);
+        calcularValorRestante();
+    });
+
+    valorEntradaInput.addEventListener('input', (e) => {
+        e.target.value = formatarMoeda(e.target.value);
+        calcularValorRestante();
+    });
 
     let recibos = [];
     try {
@@ -23,32 +67,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const recibo = recibos.find(r => r.id === parseInt(reciboId));
         if (recibo) {
             form.elements['nome'].value = recibo.nome || '';
+            form.elements['contato'].value = recibo.contato || '';
             form.elements['cor'].value = recibo.cor || '';
             form.elements['modelo'].value = recibo.modelo || '';
             form.elements['quantidade'].value = recibo.quantidade || '';
             form.elements['material'].value = recibo.material || '';
             
-            const valor = parseFloat(recibo.valor);
-            if (!isNaN(valor)) {
-                const valorFormatado = new Intl.NumberFormat('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL'
-                }).format(valor);
-                valorInput.value = valorFormatado;
-            } else {
-                valorInput.value = '';
-            }
+            valorTotalInput.value = formatarMoeda(String(recibo.valorTotal));
+            valorEntradaInput.value = formatarMoeda(String(recibo.valorEntrada));
+            calcularValorRestante();
             
-            // Formata a data e hora para os campos de input
-            const diaProva = recibo.diaProva ? recibo.diaProva.substring(0, 10) : '';
-            const dataEntrega = recibo.dataEntrega ? recibo.dataEntrega.substring(0, 10) : '';
-            const horaProva = recibo.horaProva ? recibo.horaProva.substring(0, 5) : '';
-            const horaEntrega = recibo.horaEntrega ? recibo.horaEntrega.substring(0, 5) : '';
-
-            form.elements['diaProva'].value = diaProva;
-            form.elements['horaProva'].value = horaProva;
-            form.elements['dataEntrega'].value = dataEntrega;
-            form.elements['horaEntrega'].value = horaEntrega;
+            tipoPagamentoInput.value = recibo.tipoPagamento || '';
+            
+            form.elements['diaProva'].value = recibo.diaProva ? recibo.diaProva.substring(0, 10) : '';
+            form.elements['horaProva'].value = recibo.horaProva || '';
+            form.elements['dataEntrega'].value = recibo.dataEntrega ? recibo.dataEntrega.substring(0, 10) : '';
+            form.elements['horaEntrega'].value = recibo.horaEntrega || '';
             
             form.elements['superior'].checked = !!recibo.superior;
             form.elements['inferior'].checked = !!recibo.inferior;
@@ -65,42 +99,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         reciboInput.value = ultimoRecibo + 1;
     }
 
-    valorInput.addEventListener('input', (e) => {
-        let value = e.target.value;
-        value = value.replace(/\D/g, '');
-        if (value.length > 2) {
-            value = value.padStart(3, '0');
-        }
-        
-        let cents = value.slice(-2);
-        let reais = value.slice(0, -2);
-        
-        reais = reais.split('').reverse().join('').match(/.{1,3}/g);
-        reais = reais.join('.').split('').reverse().join('');
-        
-        e.target.value = `R$ ${reais},${cents}`;
-    });
-
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        const valorNumerico = parseFloat(valorInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.'));
-
-        const horaProva = form.elements['horaProva'].value || '';
-        const horaEntrega = form.elements['horaEntrega'].value || '';
 
         const data = {
             id: reciboId ? parseInt(reciboId) : Date.now(),
+            dataRecibo: dataReciboInput.value,
+            valorTotal: parseFloat(valorTotalInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.')) || 0,
+            valorEntrada: parseFloat(valorEntradaInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.')) || 0,
+            valorRestante: parseFloat(valorRestanteInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.')) || 0,
             nome: form.elements['nome'].value,
+            contato: form.elements['contato'].value,
             cor: form.elements['cor'].value,
             modelo: form.elements['modelo'].value,
             quantidade: form.elements['quantidade'].value,
             material: form.elements['material'].value,
-            valor: valorNumerico,
+            tipoPagamento: tipoPagamentoInput.value,
             diaProva: form.elements['diaProva'].value,
-            horaProva: horaProva,
+            horaProva: form.elements['horaProva'].value,
             dataEntrega: form.elements['dataEntrega'].value,
-            horaEntrega: horaEntrega,
+            horaEntrega: form.elements['horaEntrega'].value,
             superior: form.elements['superior'].checked,
             inferior: form.elements['inferior'].checked,
             recibo: reciboInput.value

@@ -18,7 +18,10 @@
 
   <main class="agenda-container">
     <h2>Agenda da Semana</h2>
-    <a href="menu.html" class="action-btn" style="background: #ccc; color: var(--text-dark); text-decoration: none; margin-bottom: 20px;">Voltar ao Menu</a>
+    <div class="agenda-actions">
+        <a href="menu.html" class="action-btn" style="background: #ccc; color: var(--text-dark); text-decoration: none;">Voltar ao Menu</a>
+        <button id="openModalBtn" class="action-btn" style="background: #28a745; color: white;">+ Adicionar Agendamento</button>
+    </div>
 
     <div class="calendar-nav">
       <button id="prevWeek" class="nav-btn">&lt;</button>
@@ -29,6 +32,34 @@
     <div id="kanban-board">
       </div>
   </main>
+
+  <div id="addCardModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h3>Novo Agendamento</h3>
+      <form id="agendamentoForm">
+        <label for="nomeCliente">Nome do Cliente:</label>
+        <input type="text" id="nomeCliente" name="nomeCliente" required>
+        
+        <label for="tipoAtendimento">Tipo de Atendimento:</label>
+        <select id="tipoAtendimento" name="tipoAtendimento" required>
+          <option value="">Selecione o tipo</option>
+          <option value="Prova">Prova</option>
+          <option value="Entrega">Entrega</option>
+          <option value="Moldagem">Moldagem</option>
+          <option value="Conserto">Conserto</option>
+        </select>
+        
+        <label for="dataAtendimento">Data:</label>
+        <input type="date" id="dataAtendimento" name="dataAtendimento" required>
+
+        <label for="horaAtendimento">Horário:</label>
+        <input type="time" id="horaAtendimento" name="horaAtendimento" required>
+
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+  </div>
 
   <script src="agenda.js"></script>
 </body>

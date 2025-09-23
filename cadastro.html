@@ -16,17 +16,34 @@
     </div>
   </header>
   
-
   <form id="reciboForm">
+    <h6>Data do Recibo</h6>
+    <input type="date" id="dataRecibo" name="dataRecibo" readonly>
+
     <input type="text" name="nome" placeholder="Nome" required>
+    <input type="number" name="contato" placeholder="Contato">
     <input type="text" name="cor" placeholder="Cor">
     <input type="text" name="modelo" placeholder="Modelo">
-    <input type="text" name="quantidade" placeholder="Quantidade">
+    <input type="number" name="quantidade" placeholder="Quantidade">
     <input type="text" name="material" placeholder="Material Usado">
     
-    <label for="valor">Valor:</label>
-    <input type="text" id="valor" name="valor" placeholder="R$ 0,00" required>
-    
+    <h6>Valor Total</h6>
+    <input type="text" id="valorTotal" name="valorTotal" placeholder="R$ 0,00">
+
+    <h6>Valor de Entrada</h6>
+    <input type="text" id="valorEntrada" name="valorEntrada" placeholder="R$ 0,00">
+
+    <h6>Valor Restante</h6>
+    <input type="text" id="valorRestante" name="valorRestante" placeholder="R$ 0,00" readonly>
+
+    <h6>Tipo de Pagamento</h6>
+    <select id="tipoPagamento" name="tipoPagamento" required>
+        <option value="">Selecione o tipo</option>
+        <option value="Dinheiro">Dinheiro</option>
+        <option value="Pix">Pix</option>
+        <option value="Cartao">Cartão</option>
+    </select>
+
     <h6>Dia de Prova e Hora</h6>
     <input type="date" name="diaProva">
     <input type="time" name="horaProva">
@@ -43,7 +60,6 @@
     <input type="text" id="recibo" name="recibo" readonly>
 
     <button type="submit">Salvar</button>
-    <a href="menu.html" class="action-btn" style="background: #ccc; color: var(--text-dark); text-decoration: none; margin-left: 10px;">Voltar ao Menu</a>
   </form>
 
   <script src="script.js"></script>

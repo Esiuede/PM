@@ -3,11 +3,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filtroNomeInput = document.getElementById('filtroNome');
     
     // Substitua pelo URL do seu Apps Script
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwTKH8E4uyOd0Kt6OS2xHfFMrtdSDIh8CrxLV8fGhlLxy7TYHvl1Dw1JpsQmNL44JlxIQ/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwMX1U61B2ArlEoQJu4i8SiD14NNdRbi0CSGrj7yPoK6zbC91oU4ZmqGNiv1aCg5YpKww/exec';
 
     let todosRecibos = [];
     
-    // Função para verificar se a string é um horário válido (HH:mm ou HH:mm:ss)
+    function formatarValorMonetario(valor) {
+        let numericValue = parseFloat(valor);
+        if (isNaN(numericValue) || numericValue === 0) {
+            return 'R$ 0,00';
+        }
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(numericValue);
+    }
+
     function isHoraValida(hora) {
       if (typeof hora !== 'string' || !hora) {
         return false;
@@ -15,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       return /^\d{2}:\d{2}(:\d{2})?$/.test(hora);
     }
 
-    // Função para formatar a data e hora para exibição na tabela
     function formatarDataCompleta(dataString, horaString) {
       if (!dataString) {
         return 'N/A';
@@ -25,7 +34,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       let horaFormatada = '';
       if (isHoraValida(horaString)) {
-        // Pega apenas HH:mm, ignorando os segundos
         horaFormatada = horaString.substring(0, 5); 
       }
       return `${dataFormatada} ${horaFormatada}`;
@@ -49,21 +57,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         tableBody.innerHTML = '';
         
         recibosParaExibir.forEach(recibo => {
-            const tipo = (recibo.superior ? 'Superior' : '') + (recibo.inferior ? ' Inferior' : '');
-            
-            const provaFormatada = formatarDataCompleta(recibo.diaProva, recibo.horaProva);
-            const entregaFormatada = formatarDataCompleta(recibo.dataEntrega, recibo.horaEntrega);
-
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${recibo.recibo || 'N/A'}</td>
+                <td>${recibo.dataRecibo ? new Date(recibo.dataRecibo).toLocaleDateString('pt-BR') : 'N/A'}</td>
                 <td>${recibo.nome || 'N/A'}</td>
+                <td>${formatarValorMonetario(recibo.valorTotal)}</td>
+                <td>${formatarValorMonetario(recibo.valorEntrada)}</td>
+                <td>${formatarValorMonetario(recibo.valorRestante)}</td>
+                <td>${recibo.tipoPagamento || 'N/A'}</td>
                 <td>${recibo.modelo || 'N/A'}</td>
-                <td>${recibo.quantidade || 'N/A'}</td>
-                <td>${tipo || 'N/A'}</td>
-                <td>${provaFormatada}</td>
-                <td>${entregaFormatada}</td>
-                <td>R$ ${parseFloat(recibo.valor).toFixed(2) || '0.00'}</td>
                 <td>
                     <button class="action-btn edit-btn" data-id="${recibo.id}">Editar</button>
                     <button class="action-btn delete-btn" data-id="${recibo.id}">Excluir</button>
@@ -86,8 +89,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', async (e) => {
                 if (confirm('Tem certeza que deseja excluir este recibo?')) {
-                    const id = e.target.dataset.id;
-                    await deleteRecibo(id);
+                    const payload = { action: 'delete', id: parseInt(e.target.dataset.id) };
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                        headers: {
+                            'Content-Type': 'text/plain'
+                        }
+                    });
+                    await carregarRecibos();
                 }
             });
         });
@@ -99,18 +109,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return (recibo.nome || '').toLowerCase().includes(textoFiltro);
         });
         renderTable(recibosFiltrados);
-    }
-
-    async function deleteRecibo(id) {
-        const payload = { action: 'delete', id: parseInt(id) };
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            headers: {
-                'Content-Type': 'text/plain'
-            }
-        });
-        await carregarRecibos();
     }
 
     filtroNomeInput.addEventListener('input', filtrarRecibos);

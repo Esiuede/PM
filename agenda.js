@@ -3,9 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const weekDatesDiv = document.getElementById('weekDates');
     const prevWeekBtn = document.getElementById('prevWeek');
     const nextWeekBtn = document.getElementById('nextWeek');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const modal = document.getElementById('addCardModal');
+    const closeBtn = document.querySelector('.close-btn');
+    const agendamentoForm = document.getElementById('agendamentoForm');
 
     // Substitua pelo URL da sua API de Recibos
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwTKH8E4uyOd0Kt6OS2xHfFMrtdSDIh8CrxLV8fGhlLxy7TYHvl1Dw1JpsQmNL44JlxIQ/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwMX1U61B2ArlEoQJu4i8SiD14NNdRbi0CSGrj7yPoK6zbC91oU4ZmqGNiv1aCg5YpKww/exec';
 
     let currentWeekStart = getStartOfWeek(new Date());
 
@@ -56,8 +60,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             records.forEach(record => {
                 const appointmentTypes = [];
-                if (record.diaProva) appointmentTypes.push({ type: 'Prova', date: new Date(record.diaProva), time: record.horaProva });
-                if (record.dataEntrega) appointmentTypes.push({ type: 'Entrega', date: new Date(record.dataEntrega), time: record.horaEntrega });
+                const materialLowerCase = record.material ? record.material.toLowerCase() : '';
+
+                if (materialLowerCase.includes('moldagem')) {
+                    if (record.diaProva) appointmentTypes.push({ type: 'Moldagem', date: new Date(record.diaProva), time: record.horaProva });
+                } else if (materialLowerCase.includes('conserto')) {
+                    if (record.diaProva) appointmentTypes.push({ type: 'Conserto', date: new Date(record.diaProva), time: record.horaProva });
+                }
+                if (record.diaProva && !materialLowerCase.includes('moldagem') && !materialLowerCase.includes('conserto')) {
+                     appointmentTypes.push({ type: 'Prova', date: new Date(record.diaProva), time: record.horaProva });
+                }
+                if (record.dataEntrega) {
+                    appointmentTypes.push({ type: 'Entrega', date: new Date(record.dataEntrega), time: record.horaEntrega });
+                }
 
                 appointmentTypes.forEach(appointment => {
                     const appointmentDay = new Date(appointment.date);
@@ -82,6 +97,68 @@ document.addEventListener('DOMContentLoaded', () => {
             kanbanBoard.innerHTML = '<p style="text-align:center; color:red;">Não foi possível carregar a agenda. Verifique a API.</p>';
         }
     }
+
+    // Lógica para abrir/fechar o modal
+    openModalBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    agendamentoForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nomeCliente = document.getElementById('nomeCliente').value;
+        const tipoAtendimento = document.getElementById('tipoAtendimento').value;
+        const dataAtendimento = document.getElementById('dataAtendimento').value;
+        const horaAtendimento = document.getElementById('horaAtendimento').value;
+
+        let dataToSave = {
+            id: Date.now(),
+            action: 'add',
+            nome: nomeCliente,
+            recibo: 'N/A',
+        };
+
+        if (tipoAtendimento === 'Prova') {
+            dataToSave.diaProva = dataAtendimento;
+            dataToSave.horaProva = horaAtendimento;
+        } else if (tipoAtendimento === 'Entrega') {
+            dataToSave.dataEntrega = dataAtendimento;
+            dataToSave.horaEntrega = horaAtendimento;
+        } else {
+            dataToSave.diaProva = dataAtendimento;
+            dataToSave.horaProva = horaAtendimento;
+            dataToSave.material = tipoAtendimento; // Agora salvamos o tipo diretamente no campo material
+        }
+        
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify(dataToSave),
+                headers: {
+                    'Content-Type': 'text/plain'
+                }
+            });
+            if (!response.ok) throw new Error('Falha ao salvar agendamento.');
+
+            alert('Agendamento salvo com sucesso!');
+            modal.style.display = 'none';
+            agendamentoForm.reset();
+            loadAppointments(); // Recarrega a agenda
+        } catch (error) {
+            alert('Erro ao salvar agendamento.');
+            console.error('Erro ao salvar:', error);
+        }
+    });
 
     prevWeekBtn.addEventListener('click', () => {
         currentWeekStart.setDate(currentWeekStart.getDate() - 7);
