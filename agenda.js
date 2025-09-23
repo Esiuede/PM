@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const agendamentoForm = document.getElementById('agendamentoForm');
 
     // Substitua pelo URL da sua API de Recibos
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwMX1U61B2ArlEoQJu4i8SiD14NNdRbi0CSGrj7yPoK6zbC91oU4ZmqGNiv1aCg5YpKww/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7VH4hden3srEFmG95FD_37zGVm-GZYAikS4d4ikR0QxRUp7qDv3z7_giwAAqqtXRiYQ/exec';
 
     let currentWeekStart = getStartOfWeek(new Date());
 
@@ -67,7 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (materialLowerCase.includes('conserto')) {
                     if (record.diaProva) appointmentTypes.push({ type: 'Conserto', date: new Date(record.diaProva), time: record.horaProva });
                 }
-                if (record.diaProva && !materialLowerCase.includes('moldagem') && !materialLowerCase.includes('conserto')) {
+                else if (materialLowerCase.includes('domicilio')) {
+                    if (record.diaProva) appointmentTypes.push({ type: 'Domicilio', date: new Date(record.diaProva), time: record.horaProva });
+                }
+                if (record.diaProva && !materialLowerCase.includes('moldagem') && !materialLowerCase.includes('conserto') && !materialLowerCase.includes('domicilio')) {
                      appointmentTypes.push({ type: 'Prova', date: new Date(record.diaProva), time: record.horaProva });
                 }
                 if (record.dataEntrega) {

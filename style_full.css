@@ -417,3 +417,7 @@ table tr:hover {
 .card-conserto {
     border-color: #dc3545; /* Cor para Conserto */
 }
+
+.card-domicilio {
+    border-color: #e5f50c; /* Cor para Domicílio (cinza) */
+}

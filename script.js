@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dataReciboInput = document.getElementById('dataRecibo');
     const tipoPagamentoInput = document.getElementById('tipoPagamento');
     
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwMX1U61B2ArlEoQJu4i8SiD14NNdRbi0CSGrj7yPoK6zbC91oU4ZmqGNiv1aCg5YpKww/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7VH4hden3srEFmG95FD_37zGVm-GZYAikS4d4ikR0QxRUp7qDv3z7_giwAAqqtXRiYQ/exec';
 
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
@@ -73,16 +73,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             form.elements['quantidade'].value = recibo.quantidade || '';
             form.elements['material'].value = recibo.material || '';
             
-            valorTotalInput.value = formatarMoeda(String(recibo.valorTotal));
-            valorEntradaInput.value = formatarMoeda(String(recibo.valorEntrada));
+            const formatarParaEdicao = (valor) => {
+                if (valor === null || valor === undefined || isNaN(parseFloat(valor))) {
+                    return '';
+                }
+                const numericValue = parseFloat(valor);
+                return new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                }).format(numericValue);
+            };
+
+            valorTotalInput.value = formatarParaEdicao(recibo.valorTotal);
+            valorEntradaInput.value = formatarParaEdicao(recibo.valorEntrada);
             calcularValorRestante();
             
             tipoPagamentoInput.value = recibo.tipoPagamento || '';
             
-            form.elements['diaProva'].value = recibo.diaProva ? recibo.diaProva.substring(0, 10) : '';
-            form.elements['horaProva'].value = recibo.horaProva || '';
-            form.elements['dataEntrega'].value = recibo.dataEntrega ? recibo.dataEntrega.substring(0, 10) : '';
-            form.elements['horaEntrega'].value = recibo.horaEntrega || '';
+            // Lógica de formatação para carregar a data e a hora
+            const diaProva = recibo.diaProva ? recibo.diaProva.substring(0, 10) : '';
+            const dataEntrega = recibo.dataEntrega ? recibo.dataEntrega.substring(0, 10) : '';
+            
+            const horaProva = recibo.horaProva || '';
+            const horaEntrega = recibo.horaEntrega || '';
+
+            form.elements['diaProva'].value = diaProva;
+            form.elements['horaProva'].value = horaProva;
+            form.elements['dataEntrega'].value = dataEntrega;
+            form.elements['horaEntrega'].value = horaEntrega;
             
             form.elements['superior'].checked = !!recibo.superior;
             form.elements['inferior'].checked = !!recibo.inferior;

@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const filtroNomeInput = document.getElementById('filtroNome');
     
     // Substitua pelo URL do seu Apps Script
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwMX1U61B2ArlEoQJu4i8SiD14NNdRbi0CSGrj7yPoK6zbC91oU4ZmqGNiv1aCg5YpKww/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbz7VH4hden3srEFmG95FD_37zGVm-GZYAikS4d4ikR0QxRUp7qDv3z7_giwAAqqtXRiYQ/exec';
 
     let todosRecibos = [];
     
@@ -59,14 +59,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         recibosParaExibir.forEach(recibo => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${recibo.recibo || 'N/A'}</td>
-                <td>${recibo.dataRecibo ? new Date(recibo.dataRecibo).toLocaleDateString('pt-BR') : 'N/A'}</td>
                 <td>${recibo.nome || 'N/A'}</td>
+                <td>${recibo.contato || 'N/A'}</td>
+                <td>${recibo.cor || 'N/A'}</td>
+                <td>${recibo.modelo || 'N/A'}</td>
                 <td>${formatarValorMonetario(recibo.valorTotal)}</td>
                 <td>${formatarValorMonetario(recibo.valorEntrada)}</td>
                 <td>${formatarValorMonetario(recibo.valorRestante)}</td>
                 <td>${recibo.tipoPagamento || 'N/A'}</td>
-                <td>${recibo.modelo || 'N/A'}</td>
                 <td>
                     <button class="action-btn edit-btn" data-id="${recibo.id}">Editar</button>
                     <button class="action-btn delete-btn" data-id="${recibo.id}">Excluir</button>
