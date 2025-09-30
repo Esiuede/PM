@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.querySelector('.close-btn');
     const agendamentoForm = document.getElementById('agendamentoForm');
 
-    // Substitua pelo URL da sua API de Recibos
     const API_URL = 'https://script.google.com/macros/s/AKfycbz7VH4hden3srEFmG95FD_37zGVm-GZYAikS4d4ikR0QxRUp7qDv3z7_giwAAqqtXRiYQ/exec';
 
     let currentWeekStart = getStartOfWeek(new Date());
@@ -16,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function getStartOfWeek(date) {
         const start = new Date(date);
         const day = start.getDay();
-        const diff = start.getDate() - day + (day === 0 ? -6 : 1); // Ajusta para segunda-feira
+        const diff = start.getDate() - day + (day === 0 ? -6 : 1);
         start.setDate(diff);
         start.setHours(0, 0, 0, 0);
         return start;
@@ -24,6 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function formatDate(date) {
         return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    }
+
+    function formatTime(timeString) {
+        if (!timeString || typeof timeString !== 'string') {
+            return 'N/A';
+        }
+        const timeMatch = timeString.match(/(\d{2}:\d{2})/);
+        return timeMatch ? timeMatch[0] : 'N/A';
     }
 
     function renderWeek() {
@@ -49,52 +56,92 @@ document.addEventListener('DOMContentLoaded', () => {
             dayColumn.id = `day-${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`;
             kanbanBoard.appendChild(dayColumn);
         });
+        return week;
     }
 
     async function loadAppointments() {
-        renderWeek();
+        const week = renderWeek();
+        const appointmentsByDay = {}; 
+        
+        week.forEach(day => {
+            const dayId = `day-${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`;
+            appointmentsByDay[dayId] = [];
+        });
+
         try {
             const response = await fetch(API_URL);
             if (!response.ok) throw new Error('Falha ao carregar os dados.');
             const records = await response.json();
 
             records.forEach(record => {
-                const appointmentTypes = [];
-                const materialLowerCase = record.material ? record.material.toLowerCase() : '';
+                const materialType = record.material || '';
+                const materialLowerCase = materialType.toLowerCase();
 
-                if (materialLowerCase.includes('moldagem')) {
-                    if (record.diaProva) appointmentTypes.push({ type: 'Moldagem', date: new Date(record.diaProva), time: record.horaProva });
-                } else if (materialLowerCase.includes('conserto')) {
-                    if (record.diaProva) appointmentTypes.push({ type: 'Conserto', date: new Date(record.diaProva), time: record.horaProva });
-                }
-                else if (materialLowerCase.includes('domicilio')) {
-                    if (record.diaProva) appointmentTypes.push({ type: 'Domicilio', date: new Date(record.diaProva), time: record.horaProva });
-                }
-                if (record.diaProva && !materialLowerCase.includes('moldagem') && !materialLowerCase.includes('conserto') && !materialLowerCase.includes('domicilio')) {
-                     appointmentTypes.push({ type: 'Prova', date: new Date(record.diaProva), time: record.horaProva });
-                }
-                if (record.dataEntrega) {
-                    appointmentTypes.push({ type: 'Entrega', date: new Date(record.dataEntrega), time: record.horaEntrega });
-                }
+                // Lógica para identificar e agrupar todos os agendamentos
+                const checkAndAddAppointment = (type, dateField, timeField) => {
+                    if (record[dateField]) {
+                        const date = new Date(record[dateField]);
+                        const time = record[timeField];
+                        const dayId = `day-${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+                        
+                        if (appointmentsByDay[dayId]) {
+                            let appointmentType = type;
+                            if (type === 'Prova' && (materialLowerCase.includes('moldagem') || materialLowerCase.includes('conserto') || materialLowerCase.includes('domicilio'))) {
+                                appointmentType = record.material; // Usa o valor do campo material
+                            }
+                            
+                            appointmentsByDay[dayId].push({ 
+                                type: appointmentType, 
+                                date: date, 
+                                time: time, 
+                                recibo: record.recibo, 
+                                nome: record.nome 
+                            });
+                        }
+                    }
+                };
 
-                appointmentTypes.forEach(appointment => {
-                    const appointmentDay = new Date(appointment.date);
-                    const dayColumn = document.getElementById(`day-${appointmentDay.getFullYear()}-${appointmentDay.getMonth()}-${appointmentDay.getDate()}`);
-                    
-                    if (dayColumn) {
+                // Verifica Prova/Moldagem/Conserto/Domicilio (usa diaProva)
+                checkAndAddAppointment('Prova', 'diaProva', 'horaProva');
+                
+                // Verifica Entrega (usa dataEntrega) - não deve ser duplicado com Prova
+                checkAndAddAppointment('Entrega', 'dataEntrega', 'horaEntrega');
+            });
+
+            // Ordena e Renderiza
+            Object.keys(appointmentsByDay).forEach(dayId => {
+                const appointments = appointmentsByDay[dayId];
+                
+                // ORDENAÇÃO POR HORÁRIO
+                appointments.sort((a, b) => {
+                    const timeA = formatTime(a.time);
+                    const timeB = formatTime(b.time);
+                    return timeA.localeCompare(timeB);
+                });
+
+                const dayColumn = document.getElementById(dayId);
+                if (dayColumn) {
+                    appointments.forEach(appointment => {
                         const card = document.createElement('div');
-                        card.className = `card card-${appointment.type.toLowerCase()}`;
+                        
+                        // Garante que o nome da classe seja válido (ex: card-domicilio)
+                        const cardClassName = `card card-${appointment.type.toLowerCase().replace(/ /g, '-')}`; 
+                        
+                        let displayTime = formatTime(appointment.time);
+
+                        card.className = cardClassName;
                         card.innerHTML = `
-                            <div class="card-title">${appointment.type} - ${record.nome}</div>
+                            <div class="card-title">${appointment.type} - ${appointment.nome}</div>
                             <div class="card-body">
-                                Horário: ${appointment.time || 'N/A'}<br>
-                                Recibo: ${record.recibo || 'N/A'}
+                                Horário: ${displayTime}<br>
+                                Recibo: ${appointment.recibo || 'N/A'}
                             </div>
                         `;
                         dayColumn.appendChild(card);
-                    }
-                });
+                    });
+                }
             });
+
         } catch (error) {
             console.error('Erro ao carregar a agenda:', error);
             kanbanBoard.innerHTML = '<p style="text-align:center; color:red;">Não foi possível carregar a agenda. Verifique a API.</p>';
@@ -140,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             dataToSave.diaProva = dataAtendimento;
             dataToSave.horaProva = horaAtendimento;
-            dataToSave.material = tipoAtendimento; // Agora salvamos o tipo diretamente no campo material
+            dataToSave.material = tipoAtendimento;
         }
         
         try {
@@ -156,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Agendamento salvo com sucesso!');
             modal.style.display = 'none';
             agendamentoForm.reset();
-            loadAppointments(); // Recarrega a agenda
+            loadAppointments();
         } catch (error) {
             alert('Erro ao salvar agendamento.');
             console.error('Erro ao salvar:', error);

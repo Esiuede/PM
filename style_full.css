@@ -421,3 +421,48 @@ table tr:hover {
 .card-domicilio {
     border-color: #e5f50c; /* Cor para Domicílio (cinza) */
 }
+
+/* Media Query para telas menores que 768px (Ajuste Final de Leitura) */
+@media (max-width: 768px) {
+  
+  /* Geral: Força o preenchimento da tela e aumenta a legibilidade */
+  body {
+    padding: 0;
+  }
+  
+  /* Header: Aumenta o tamanho da fonte para leitura fácil */
+  .brand-title {
+    font-size: 18px; 
+  }
+  
+  .brand-sub {
+    font-size: 12px;
+  }
+  
+  /* Formulários: Ocupa quase 100% da largura da tela */
+  form {
+    max-width: 95%; /* Garante que o formulário seja quase full-width */
+    margin: 20px auto;
+    padding: 15px;
+  }
+  
+  /* Inputs: Garante que os campos de texto e valor sejam maiores */
+  form input:not([type="checkbox"]), 
+  form select, 
+  form textarea {
+    padding: 12px; /* Aumenta a altura dos campos */
+    font-size: 15px; /* Aumenta a fonte para facilitar a digitação */
+  }
+
+  /* Botões: Torna o botão principal maior */
+  form button[type="submit"] {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+
+  /* Agenda Kanban: Ajuste para o tamanho de leitura */
+  .day-column {
+    flex-shrink: 0;
+    width: 95vw; /* Ocupa mais espaço na tela */
+  }
+}
