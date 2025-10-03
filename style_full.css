@@ -1,7 +1,7 @@
 /* Paleta baseada na logo */
 :root {
-  --primary-color: #5C3A2E; /* marrom da logo */
-  --secondary-color: #E7C9A9; /* bege do fundo */
+  --primary-color: #614e40; /* marrom da logo */
+  --secondary-color: #b4a48d; /* bege do fundo */
   --text-dark: #2c2c2c;
   --text-light: #ffffff;
   --background: #fdfbf9;
@@ -464,5 +464,331 @@ table tr:hover {
   .day-column {
     flex-shrink: 0;
     width: 95vw; /* Ocupa mais espaço na tela */
+  }
+}
+
+
+/* ================================== */
+/* ESTILOS ADICIONAIS PARA O DASHBOARD */
+/* ================================== */
+
+/* Header do Dashboard */
+
+
+
+
+.new-receipt-btn:hover {
+  background-color: #f0f0f0;
+}
+
+/* Container principal do Dashboard */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Seções do Dashboard (Agenda, Recibos) */
+.dashboard-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-section h2 {
+  font-size: 22px;
+  color: var(--text-dark);
+}
+
+.secondary-btn {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+.secondary-btn:hover {
+    background-color: #44291f;
+}
+
+/* Card da Agenda do Dia */
+.day-card-container {
+  background-color: #fff;
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  min-height: 100px;
+}
+
+.appointment-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  border-left: 5px solid;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  margin-bottom: 10px;
+}
+
+.appointment-time {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--primary-color);
+  width: 60px;
+  text-align: center;
+}
+
+.appointment-details {
+  flex-grow: 1;
+}
+
+.appointment-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.appointment-patient {
+  font-size: 14px;
+  color: #555;
+}
+
+/* Cores dos cards de agendamento (reaproveitando as da agenda) */
+.appointment-card.card-prova { border-color: #f4a261; }
+.appointment-card.card-entrega { border-color: #28a745; }
+.appointment-card.card-moldagem { border-color: #007bff; }
+.appointment-card.card-conserto { border-color: #dc3545; }
+.appointment-card.card-domicilio { border-color: #6c757d; }
+
+
+/* Lista de Últimos Recibos */
+.receipts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.receipt-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 15px 20px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.receipt-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.12);
+}
+
+.receipt-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.receipt-number {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.receipt-patient {
+  color: #555;
+}
+
+.receipt-actions .icon-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* ========================================= */
+/* ESTILOS PARA O LAYOUT COM MENU LATERAL    */
+/* ========================================= */
+
+/* Container principal da página */
+.page-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Estilos do Menu Lateral (Sidebar) */
+.sidebar {
+  width: 240px;
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0; /* Impede que o menu encolha */
+}
+
+.sidebar-header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .brand-title {
+  color: var(--primary-color);
+  font-size: 20px;
+}
+.sidebar .brand-sub {
+  color: var(--primary-color);
+  font-size: 12px;
+}
+
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-item {
+  margin-bottom: 10px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--primary-color);
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-light);
+}
+
+.nav-link.active {
+  background-color: var(--text-light);
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.nav-icon {
+  font-size: 20px;
+}
+
+/* Estilos do Conteúdo Principal */
+.main-content {
+  flex-grow: 1; /* Faz o conteúdo ocupar o resto do espaço */
+  padding: 30px;
+  background-color: var(--background);
+  overflow-y: auto; /* Permite rolar apenas o conteúdo */
+}
+
+/* Ajustes nos componentes do dashboard para o novo layout */
+.dashboard-section {
+    max-width: 1000px;
+    margin: 0 auto 40px auto;
+}
+
+.dashboard-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-section h2 {
+  font-size: 22px;
+  color: var(--primary-color);
+}
+
+.secondary-btn {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+}
+.secondary-btn:hover {
+    background-color: var(--text-dark);
+}
+
+.day-card-container {
+  background-color: #fff;
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  min-height: 100px;
+}
+
+.receipts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.receipt-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 15px 20px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.receipt-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(0,0,0,0.12);
+}
+
+/* Responsividade para Telas Pequenas */
+@media (max-width: 768px) {
+  .page-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row; /* Transforma em barra horizontal */
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .sidebar-header, .nav-icon {
+    display: none; /* Esconde o header e ícones para economizar espaço */
+  }
+
+  .nav-list {
+    display: flex;
+    gap: 5px;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .nav-item {
+      margin-bottom: 0;
+  }
+
+  .nav-link {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .main-content {
+    padding: 20px;
   }
 }

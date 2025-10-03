@@ -1,29 +1,60 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Menu Principal - Sheyla Cavalcanti</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style_full.css">
-</head>
 <body>
-  <header class="header">
-    <div class="brand">
-      <div class="brand-logo"><img src="./imgs/logo.jpg" width="56" height="56"></div>
-      <div>
+  <link rel="stylesheet" href="style_full.css">
+  <div class="page-container">
+    <nav class="sidebar">
+      <div class="sidebar-header">
         <div class="brand-title">Sheyla Cavalcanti</div>
-        <div class="brand-sub">Laboratório de Prótese Dentária</div>
+        <div class="brand-sub">Laboratório</div>
       </div>
-    </div>
-  </header>
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="menu.html" class="nav-link active">
+            <span class="nav-icon">📊</span> 
+            Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="cadastro.html" class="nav-link">
+            <span class="nav-icon">📋</span> 
+            Novo Recibo
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="recibos.html" class="nav-link">
+            <span class="nav-icon">📂</span> 
+            Ver Recibos
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="agenda.html" class="nav-link">
+            <span class="nav-icon">🗓️</span> 
+            Agenda
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <main class="main-content">
+      <section class="dashboard-section">
+        <div class="section-header">
+          <h2>Agenda do dia</h2>
+          <a href="agenda.html" class="action-btn secondary-btn">Agenda completa</a>
+        </div>
+        <div class="day-card-container" id="agendaDoDia">
+          <p>Carregando agendamentos...</p>
+        </div>
+      </section>
 
-  <main style="max-width: 800px; margin: 30px auto; text-align: center; padding: 20px;">
-    <h2>Boas-vindas! O que você deseja fazer?</h2>
-    <div style="display: flex; justify-content: center; gap: 20px; margin-top: 30px;">
-      <a href="cadastro.html" class="action-btn" style="background: var(--primary-color); color: var(--text-light); padding: 12px 24px; border-radius: 8px; text-decoration: none;">Cadastrar Novo Recibo</a>
-      <a href="recibos.html" class="action-btn" style="background: var(--primary-color); color: var(--text-light); padding: 12px 24px; border-radius: 8px; text-decoration: none; border: 1px solid var(--primary-color);">Visualizar e Editar Recibos</a>
-      <a href="agenda.html" class="action-btn" style="background: #5C3A2E; color: var(--text-light); padding: 12px 24px; border-radius: 8px; text-decoration: none;">Agenda da Semana</a>
+      <section class="dashboard-section">
+        <div class="section-header">
+          <h2>Últimos recibos</h2>
+          <a href="recibos.html" class="action-btn secondary-btn">Todos os recibos</a>
+        </div>
+        <div class="receipts-list" id="ultimosRecibos">
+          <p>Carregando recibos...</p>
+        </div>
+      </section>
+    </main>
     </div>
-  </main>
+
+  <script src="menu.js"></script>
 </body>
-</html>
