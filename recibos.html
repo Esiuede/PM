@@ -5,42 +5,55 @@
   <title>Recibos - Sheyla Cavalcanti</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style_full.css">
+  <script src="https://unpkg.com/imask"></script>
+  <link rel="shortcut icon" type="image/x-icon" href="./imgs/minIcon.jpg">
 </head>
 <body>
-  <header class="header">
-    <div class="brand">
-      <div>
+  <div class="page-container">
+    <nav class="sidebar">
+      <div class="sidebar-header">
         <div class="brand-title">Sheyla Cavalcanti</div>
-        <div class="brand-sub">Laboratório de Prótese Dentária</div>
+        <div class="brand-sub">Laboratório</div>
       </div>
-    </div>
-  </header>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="menu.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a></li>
+        <li class="nav-item"><a href="cadastro.html" class="nav-link"><span class="nav-icon">📋</span> Novo Recibo</a></li>
+        <li class="nav-item"><a href="recibos.html" class="nav-link active"><span class="nav-icon">📂</span> Ver Recibos</a></li>
+        <li class="nav-item"><a href="agenda.html" class="nav-link"><span class="nav-icon">🗓️</span> Agenda</a></li>
+        <li class="nav-item"><a href="ContasAPagar.html" class="nav-link"><span class="nav-icon">💸</span> Contas a Pagar</a></li>
+        <li class="nav-item"><a href="ContasAReceber.html" class="nav-link"><span class="nav-icon">💰</span> Contas a Receber</a></li>
+      </ul>
+    </nav>
 
-  <main style="padding: 20px;">
-    <h2>Recibos Cadastrados</h2>
-    <a href="cadastro.html" class="action-btn" style="background: var(--primary-color); color: var(--text-light); padding: 8px 16px; border-radius: 8px; text-decoration: none; display: inline-block; margin-bottom: 20px;">+ Novo Recibo</a>
-    <a href="menu.html" class="action-btn" style="background: #ccc; color: var(--text-dark); padding: 8px 16px; border-radius: 8px; text-decoration: none; display: inline-block; margin-bottom: 20px;">Voltar ao Menu</a>
-    
-    <input type="text" id="filtroNome" placeholder="Filtrar por nome" style="width: 100%; padding: 8px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ccc;">
+    <main class="main-content">
+      <div class="page-header">
+        <h2>Recibos Cadastrados</h2>
+        <a href="cadastro.html" class="action-btn primary-btn">+ Novo Recibo</a>
+      </div>
+      
+      <input type="text" id="filtroNome" placeholder="Filtrar por nome do cliente..." style="width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ccc;">
 
-    <table id="recibosTable">
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Contato</th>
-          <th>Cor</th>
-          <th>Modelo</th>
-          <th>Valor Total</th>
-          <th>Valor de Entrada</th>
-          <th>Valor Restante</th>
-          <th>Tipo de Pagamento</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        </tbody>
-    </table>
-  </main>
+      <div class="table-container">
+        <table id="recibosTable">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Contato</th>
+              <th>Cor</th>
+              <th>Modelo</th>
+              <th>Valor Total</th>
+              <th>Valor de Entrada</th>
+              <th>Valor Restante</th>
+              <th>Tipo de Pagamento</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
 
   <script src="recibos.js"></script>
 </body>

@@ -10,54 +10,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     const dataReciboInput = document.getElementById('dataRecibo');
     const tipoPagamentoInput = document.getElementById('tipoPagamento');
     
-    const API_URL = 'https://script.google.com/macros/s/AKfycbz7VH4hden3srEFmG95FD_37zGVm-GZYAikS4d4ikR0QxRUp7qDv3z7_giwAAqqtXRiYQ/exec';
+    const API_URL_RECIBOS = 'https://script.google.com/macros/s/AKfycbz7VH4hden3srEFmG95FD_37zGVm-GZYAikS4d4ikR0QxRUp7qDv3z7_giwAAqqtXRiYQ/exec';
+    const API_URL_FINANCEIRO = 'https://script.google.com/macros/s/AKfycbyXECxtIv-2x0fOGobshZ-fti1gFYttTmDraezqqhk2ergT7pUgm-gKm9aqVt4eJMdDiw/exec';
+
+    // =====================================================================
+    // INICIALIZAÇÃO DA MÁSCARA COM IMask.js
+    // =====================================================================
+    const maskOptions = {
+        mask: 'R$ num',
+        blocks: {
+            num: {
+                mask: Number,
+                scale: 2,
+                radix: ',',
+                mapToRadix: ['.'],
+                thousandsSeparator: '.',
+                padFractionalZeros: true
+            }
+        }
+    };
+
+    const valorTotalMask = IMask(valorTotalInput, maskOptions);
+    const valorEntradaMask = IMask(valorEntradaInput, maskOptions);
+    // =====================================================================
 
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
     dataReciboInput.value = formattedDate;
 
-    function formatarMoeda(value) {
-        let numericValue = value.replace(/\D/g, '');
-        if (!numericValue) return '';
-        
-        let cents = numericValue.slice(-2);
-        let reais = numericValue.slice(0, -2);
-        
-        reais = reais.split('').reverse().join('').match(/.{1,3}/g);
-        reais = reais.join('.').split('').reverse().join('');
-        
-        return `R$ ${reais},${cents}`;
-    }
-
-    function calcularValorRestante() {
-        const valorTotal = parseFloat(valorTotalInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.')) || 0;
-        const valorEntrada = parseFloat(valorEntradaInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.')) || 0;
-        const valorRestante = valorTotal - valorEntrada;
-        
-        const formattedRestante = new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL'
-        }).format(valorRestante);
-        
-        valorRestanteInput.value = formattedRestante;
+    function formatarValorParaDisplay(valor) {
+        const numericValue = parseFloat(valor);
+        if (isNaN(numericValue)) return "R$ 0,00";
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(numericValue);
     }
     
-    valorTotalInput.addEventListener('input', (e) => {
-        e.target.value = formatarMoeda(e.target.value);
-        calcularValorRestante();
-    });
-
-    valorEntradaInput.addEventListener('input', (e) => {
-        e.target.value = formatarMoeda(e.target.value);
-        calcularValorRestante();
-    });
+    function calcularValorRestante() {
+        const valorTotal = parseFloat(valorTotalMask.unmaskedValue) || 0;
+        const valorEntrada = parseFloat(valorEntradaMask.unmaskedValue) || 0;
+        const valorRestante = valorTotal - valorEntrada;
+        
+        valorRestanteInput.value = formatarValorParaDisplay(valorRestante);
+    }
+    
+    valorTotalInput.addEventListener('input', calcularValorRestante);
+    valorEntradaInput.addEventListener('input', calcularValorRestante);
 
     let recibos = [];
     try {
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-            throw new Error('Erro ao carregar dados da API.');
-        }
+        const response = await fetch(API_URL_RECIBOS);
+        if (!response.ok) throw new Error('Erro ao carregar dados da API de recibos.');
         recibos = await response.json();
     } catch (error) {
         console.error("Falha ao carregar os recibos:", error);
@@ -66,48 +67,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (reciboId) {
         const recibo = recibos.find(r => r.id === parseInt(reciboId));
         if (recibo) {
+            form.querySelector('button[type="submit"]').textContent = 'Atualizar';
             form.elements['nome'].value = recibo.nome || '';
+            
+            // Define o valor nos campos com a máscara
+            valorTotalMask.value = String(recibo.valorTotal || '').replace('.', ',');
+            valorEntradaMask.value = String(recibo.valorEntrada || '').replace('.', ',');
+            
             form.elements['contato'].value = recibo.contato || '';
             form.elements['cor'].value = recibo.cor || '';
             form.elements['modelo'].value = recibo.modelo || '';
             form.elements['quantidade'].value = recibo.quantidade || '';
             form.elements['material'].value = recibo.material || '';
-            
-            const formatarParaEdicao = (valor) => {
-                if (valor === null || valor === undefined || isNaN(parseFloat(valor))) {
-                    return '';
-                }
-                const numericValue = parseFloat(valor);
-                return new Intl.NumberFormat('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL'
-                }).format(numericValue);
-            };
-
-            valorTotalInput.value = formatarParaEdicao(recibo.valorTotal);
-            valorEntradaInput.value = formatarParaEdicao(recibo.valorEntrada);
-            calcularValorRestante();
-            
             tipoPagamentoInput.value = recibo.tipoPagamento || '';
-            
-            // Lógica de formatação para carregar a data e a hora
-            const diaProva = recibo.diaProva ? recibo.diaProva.substring(0, 10) : '';
-            const dataEntrega = recibo.dataEntrega ? recibo.dataEntrega.substring(0, 10) : '';
-            
-            const horaProva = recibo.horaProva || '';
-            const horaEntrega = recibo.horaEntrega || '';
-
-            form.elements['diaProva'].value = diaProva;
-            form.elements['horaProva'].value = horaProva;
-            form.elements['dataEntrega'].value = dataEntrega;
-            form.elements['horaEntrega'].value = horaEntrega;
-            
+            form.elements['diaProva'].value = recibo.diaProva ? recibo.diaProva.substring(0, 10) : '';
+            form.elements['horaProva'].value = recibo.horaProva || '';
+            form.elements['dataEntrega'].value = recibo.dataEntrega ? recibo.dataEntrega.substring(0, 10) : '';
+            form.elements['horaEntrega'].value = recibo.horaEntrega || '';
             form.elements['superior'].checked = !!recibo.superior;
             form.elements['inferior'].checked = !!recibo.inferior;
-            
             reciboInput.value = recibo.recibo || '';
             
-            form.querySelector('button[type="submit"]').textContent = 'Atualizar';
+            // Calcula o valor restante após preencher os campos
+            calcularValorRestante();
         } else {
             alert("Recibo não encontrado!");
             window.location.href = 'recibos.html';
@@ -120,12 +102,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const data = {
+        const valorRestanteCalculado = (parseFloat(valorTotalMask.unmaskedValue) || 0) - (parseFloat(valorEntradaMask.unmaskedValue) || 0);
+
+        const dataRecibo = {
             id: reciboId ? parseInt(reciboId) : Date.now(),
             dataRecibo: dataReciboInput.value,
-            valorTotal: parseFloat(valorTotalInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.')) || 0,
-            valorEntrada: parseFloat(valorEntradaInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.')) || 0,
-            valorRestante: parseFloat(valorRestanteInput.value.replace('R$', '').replace(/\./g, '').replace(',', '.')) || 0,
+            valorTotal: parseFloat(valorTotalMask.unmaskedValue) || 0,
+            valorEntrada: parseFloat(valorEntradaMask.unmaskedValue) || 0,
+            valorRestante: valorRestanteCalculado,
             nome: form.elements['nome'].value,
             contato: form.elements['contato'].value,
             cor: form.elements['cor'].value,
@@ -142,18 +126,45 @@ document.addEventListener('DOMContentLoaded', async () => {
             recibo: reciboInput.value
         };
 
-        const action = reciboId ? 'edit' : 'add';
-        const payload = { action, ...data };
+        try {
+            const action = reciboId ? 'edit' : 'add';
+            const payloadRecibo = { action, ...dataRecibo };
 
-        await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            headers: {
-                'Content-Type': 'text/plain'
+            const responseRecibo = await fetch(API_URL_RECIBOS, {
+                method: 'POST',
+                body: JSON.stringify(payloadRecibo),
+                headers: { 'Content-Type': 'text/plain' }
+            });
+            if (!responseRecibo.ok) throw new Error("Falha ao salvar o recibo.");
+
+            alert('Recibo salvo com sucesso!');
+
+            if (action === 'add') {
+                if (API_URL_FINANCEIRO && API_URL_FINANCEIRO !== 'COLE_A_URL_DA_API_DO_FINANCEIRO_AQUI') {
+                    const statusConta = dataRecibo.valorRestante > 0 ? 'A receber' : 'Recebido';
+                    const dataContaAReceber = {
+                        action: 'addContaAReceber',
+                        id: Date.now(),
+                        vencimento: dataRecibo.dataEntrega || dataRecibo.dataRecibo,
+                        cliente: dataRecibo.nome,
+                        valor: dataRecibo.valorRestante,
+                        descricao: `Referente ao recibo Nº ${dataRecibo.recibo}`,
+                        status: statusConta,
+                        reciboId: dataRecibo.id
+                    };
+                    fetch(API_URL_FINANCEIRO, {
+                        method: 'POST',
+                        body: JSON.stringify(dataContaAReceber),
+                        headers: { 'Content-Type': 'text/plain' }
+                    }).then(res => res.json().then(console.log)).catch(console.error);
+                }
             }
-        });
+            
+            window.location.href = 'recibos.html';
 
-        alert('Recibo salvo com sucesso!');
-        window.location.href = 'recibos.html';
+        } catch (error) {
+            alert(`Erro: ${error.message}`);
+            console.error("Erro ao processar formulário:", error);
+        }
     });
 });

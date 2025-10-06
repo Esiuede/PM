@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <head>
+  <meta charset="UTF-8">
+  <title>Contas a Pagar - Sheyla Cavalcanti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style_full.css">
+  <link rel="shortcut icon" type="image/x-icon" href="./imgs/minIcon.jpg">
+  <script src="https://unpkg.com/imask"></script>
+</head>
+</head>
+<body>
+  <div class="page-container">
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-title">Sheyla Cavalcanti</div>
+        <div class="brand-sub">Laboratório</div>
+      </div>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="menu.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a></li>
+        <li class="nav-item"><a href="cadastro.html" class="nav-link"><span class="nav-icon">📋</span> Novo Recibo</a></li>
+        <li class="nav-item"><a href="recibos.html" class="nav-link"><span class="nav-icon">📂</span> Ver Recibos</a></li>
+        <li class="nav-item"><a href="agenda.html" class="nav-link"><span class="nav-icon">🗓️</span> Agenda</a></li>
+        <li class="nav-item"><a href="contas-a-pagar.html" class="nav-link active"><span class="nav-icon">💸</span> Contas a Pagar</a></li>
+        <li class="nav-item"><a href="contas-a-receber.html" class="nav-link"><span class="nav-icon">💰</span> Contas a Receber</a></li>
+      </ul>
+    </nav>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h2>Controle de Contas a Pagar</h2>
+        <button id="addContaBtn" class="action-btn primary-btn">+ Adicionar Conta</button>
+      </div>
+
+      <div class="table-container">
+        <table id="contasPagarTable">
+          <thead>
+            <tr>
+              <th>Vencimento</th>
+              <th>Fornecedor</th>
+              <th>Valor</th>
+              <th>Categoria</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div id="contaModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h3 id="modalTitle">Adicionar Nova Conta a Pagar</h3>
+      <form id="contaForm">
+        <input type="hidden" id="contaId" name="id">
+        
+        <label for="vencimento">Data de Vencimento:</label>
+        <input type="date" id="vencimento" name="vencimento" required>
+        
+        <label for="fornecedor">Fornecedor:</label>
+        <input type="text" id="fornecedor" name="fornecedor" placeholder="Ex: Nome do Fornecedor" required>
+        
+        <label for="valor">Valor:</label>
+        <input type="text" id="valor" name="valor" placeholder="R$ 0,00" required>
+        
+        <label for="descricao">Descrição:</label>
+        <textarea id="descricao" name="descricao" rows="3" placeholder="Detalhes da compra ou serviço"></textarea>
+        
+        <label for="categoria">Categoria:</label>
+        <select id="categoria" name="categoria">
+          <option value="Fornecedores">Fornecedores</option>
+          <option value="Aluguel">Aluguel</option>
+          <option value="Salário">Salário</option>
+          <option value="Impostos">Impostos</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Outros">Outros</option>
+        </select>
+        
+        <label for="formaPagamento">Forma de Pagamento:</label>
+        <select id="formaPagamento" name="formaPagamento">
+          <option value="Boleto">Boleto</option>
+          <option value="Pix">Pix</option>
+          <option value="Cartão de Crédito">Cartão de Crédito</option>
+          <option value="Dinheiro">Dinheiro</option>
+        </select>
+        
+        <label for="status">Status:</label>
+        <select id="status" name="status">
+          <option value="A pagar">A pagar</option>
+          <option value="Pago">Pago</option>
+          <option value="Vencida">Vencida</option>
+        </select>
+        
+        <button type="submit" id="saveBtn">Salvar</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="ContasAPagar.js"></script>
+</body>
+</html>

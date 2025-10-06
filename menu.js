@@ -82,8 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const recibos = await response.json();
             
             // Ordena por número de recibo (do maior para o menor) e pega os 5 últimos
+            // CÓDIGO NOVO (CORRIGIDO)
             const ultimosRecibos = recibos
-                .sort((a, b) => parseInt(b.recibo || 0) - parseInt(a.recibo || 0))
+                .sort((a, b) => parseInt(b.id || 0) - parseInt(a.id || 0))
                 .slice(0, 5);
             
             recibosContainer.innerHTML = ''; // Limpa a mensagem de "carregando"

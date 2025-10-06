@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Contas a Receber - Sheyla Cavalcanti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style_full.css">
+  <script src="https://unpkg.com/imask"></script> </head>
+  <link rel="shortcut icon" type="image/x-icon" href="./imgs/minIcon.jpg">
+<body>
+  <div class="page-container">
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-title">Sheyla Cavalcanti</div>
+        <div class="brand-sub">Laboratório</div>
+      </div>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="menu.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a></li>
+        <li class="nav-item"><a href="cadastro.html" class="nav-link"><span class="nav-icon">📋</span> Novo Recibo</a></li>
+        <li class="nav-item"><a href="recibos.html" class="nav-link"><span class="nav-icon">📂</span> Ver Recibos</a></li>
+        <li class="nav-item"><a href="agenda.html" class="nav-link"><span class="nav-icon">🗓️</span> Agenda</a></li>
+        <li class="nav-item"><a href="ContasAPagar.html" class="nav-link"><span class="nav-icon">💸</span> Contas a Pagar</a></li>
+        <li class="nav-item"><a href="ContasAReceber.html" class="nav-link active"><span class="nav-icon">💰</span> Contas a Receber</a></li>
+      </ul>
+    </nav>
+
+    <main class="main-content">
+      <div class="page-header">
+        <h2>Controle de Contas a Receber</h2>
+        <button id="addContaBtn" class="action-btn primary-btn">+ Adicionar Conta</button>
+      </div>
+
+      <div class="table-container">
+        <table id="contasReceberTable">
+          <thead>
+            <tr>
+              <th>Vencimento</th>
+              <th>Cliente</th>
+              <th>Descrição</th>
+              <th>Valor</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div id="contaModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h3 id="modalTitle">Adicionar Nova Conta a Receber</h3>
+      <form id="contaForm">
+        <input type="hidden" id="contaId" name="id">
+        
+        <label for="vencimento">Data de Vencimento:</label>
+        <input type="date" id="vencimento" name="vencimento" required>
+        
+        <label for="cliente">Cliente:</label>
+        <input type="text" id="cliente" name="cliente" placeholder="Nome do cliente" required>
+        
+        <label for="valor">Valor:</label>
+        <input type="text" id="valor" name="valor" placeholder="R$ 0,00" required>
+        
+        <label for="descricao">Descrição:</label>
+        <textarea id="descricao" name="descricao" rows="3" placeholder="Detalhes do serviço ou produto"></textarea>
+        
+        <label for="status">Status:</label>
+        <select id="status" name="status">
+          <option value="A receber">A receber</option>
+          <option value="Recebido">Recebido</option>
+          <option value="Em atraso">Em atraso</option>
+        </select>
+        
+        <button type="submit" id="saveBtn">Salvar</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="ContasAReceber.js"></script>
+</body>
+</html>

@@ -2,65 +2,81 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>CRUD Recibos - Dental</title>
+  <title>Cadastro de Recibo - Sheyla Cavalcanti</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style_full.css">
+  <script src="https://unpkg.com/imask"></script>
+  <link rel="shortcut icon" type="image/x-icon" href="./imgs/minIcon.jpg">
 </head>
 <body>
-  <header class="header">
-    <div class="brand">
-      <div>
+  <div class="page-container">
+    <nav class="sidebar">
+      <div class="sidebar-header">
         <div class="brand-title">Sheyla Cavalcanti</div>
-        <div class="brand-sub">Laboratório de Prótese Dentária</div>
+        <div class="brand-sub">Laboratório</div>
       </div>
-    </div>
-  </header>
-  
-  <form id="reciboForm">
-    <h6>Data do Recibo</h6>
-    <input type="date" id="dataRecibo" name="dataRecibo" readonly>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="menu.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a></li>
+        <li class="nav-item"><a href="cadastro.html" class="nav-link active"><span class="nav-icon">📋</span> Novo Recibo</a></li>
+        <li class="nav-item"><a href="recibos.html" class="nav-link"><span class="nav-icon">📂</span> Ver Recibos</a></li>
+        <li class="nav-item"><a href="agenda.html" class="nav-link"><span class="nav-icon">🗓️</span> Agenda</a></li>
+        <li class="nav-item"><a href="ContasAPagar.html" class="nav-link"><span class="nav-icon">💸</span> Contas a Pagar</a></li>
+        <li class="nav-item"><a href="ContasAReceber.html" class="nav-link"><span class="nav-icon">💰</span> Contas a Receber</a></li>
+      </ul>
+    </nav>
 
-    <input type="text" name="nome" placeholder="Nome" required>
-    <input type="number" name="contato" placeholder="Contato">
-    <input type="text" name="cor" placeholder="Cor">
-    <input type="text" name="modelo" placeholder="Modelo">
-    <input type="number" name="quantidade" placeholder="Quantidade">
-    <input type="text" name="material" placeholder="Material Usado">
-    
-    <h6>Valor Total</h6>
-    <input type="text" id="valorTotal" name="valorTotal" placeholder="R$ 0,00">
+    <main class="main-content">
+      <div class="page-header">
+        <h2>Cadastro de Recibo</h2>
+      </div>
+      
+      <form id="reciboForm">
+        <h6>Data do Recibo</h6>
+        <input type="date" id="dataRecibo" name="dataRecibo" readonly>
 
-    <h6>Valor de Entrada</h6>
-    <input type="text" id="valorEntrada" name="valorEntrada" placeholder="R$ 0,00">
+        <input type="text" name="nome" placeholder="Nome" required>
+        <input type="number" name="contato" placeholder="Contato">
+        <input type="text" name="cor" placeholder="Cor">
+        <input type="text" name="modelo" placeholder="Modelo">
+        <input type="number" name="quantidade" placeholder="Quantidade">
+        <input type="text" name="material" placeholder="Material Usado">
+        
+        <h6>Valor Total</h6>
+        <input type="text" id="valorTotal" name="valorTotal" placeholder="R$ 0,00">
 
-    <h6>Valor Restante</h6>
-    <input type="text" id="valorRestante" name="valorRestante" placeholder="R$ 0,00" readonly>
+        <h6>Valor de Entrada</h6>
+        <input type="text" id="valorEntrada" name="valorEntrada" placeholder="R$ 0,00">
 
-    <h6>Tipo de Pagamento</h6>
-    <select id="tipoPagamento" name="tipoPagamento">
-        <option value="">Selecione o tipo</option>
-        <option value="Dinheiro">Dinheiro</option>
-        <option value="Pix">Pix</option>
-        <option value="Cartao">Cartão</option>
-    </select>
+        <h6>Valor Restante</h6>
+        <input type="text" id="valorRestante" name="valorRestante" placeholder="R$ 0,00" readonly>
 
-    <h6>Dia de Prova e Hora</h6>
-    <input type="date" name="diaProva">
-    <input type="time" name="horaProva">
-    <h6>Dia de Entrega e Hora</h6>
-    <input type="date" name="dataEntrega">
-    <input type="time" name="horaEntrega">
-    
-    <div class="checkbox-group">
-      <label><input type="checkbox" name="superior"> Superior</label>
-      <label><input type="checkbox" name="inferior"> Inferior</label>
-    </div>
-    
-    <label for="recibo">Nº Recibo:</label>
-    <input type="text" id="recibo" name="recibo" readonly>
+        <h6>Tipo de Pagamento</h6>
+        <select id="tipoPagamento" name="tipoPagamento">
+            <option value="">Selecione o tipo</option>
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="Pix">Pix</option>
+            <option value="Cartao">Cartão</option>
+        </select>
 
-    <button type="submit">Salvar</button>
-  </form>
+        <h6>Dia de Prova e Hora</h6>
+        <input type="date" name="diaProva">
+        <input type="time" name="horaProva">
+        <h6>Dia de Entrega e Hora</h6>
+        <input type="date" name="dataEntrega">
+        <input type="time" name="horaEntrega">
+        
+        <div class="checkbox-group">
+          <label><input type="checkbox" name="superior"> Superior</label>
+          <label><input type="checkbox" name="inferior"> Inferior</label>
+        </div>
+        
+        <label for="recibo">Nº Recibo:</label>
+        <input type="text" id="recibo" name="recibo" readonly>
+
+        <button type="submit">Salvar</button>
+      </form>
+    </main>
+  </div>
 
   <script src="script.js"></script>
 </body>

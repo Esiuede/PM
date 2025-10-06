@@ -5,33 +5,41 @@
   <title>Agenda - Sheyla Cavalcanti</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style_full.css">
+  <link rel="shortcut icon" type="image/x-icon" href="./imgs/minIcon.jpg">
 </head>
 <body>
-  <header class="header">
-    <div class="brand">
-      <div>
+  <div class="page-container">
+    <nav class="sidebar">
+      <div class="sidebar-header">
         <div class="brand-title">Sheyla Cavalcanti</div>
-        <div class="brand-sub">Laboratório de Prótese Dentária</div>
+        <div class="brand-sub">Laboratório</div>
       </div>
-    </div>
-  </header>
+      <ul class="nav-list">
+        <li class="nav-item"><a href="menu.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a></li>
+        <li class="nav-item"><a href="cadastro.html" class="nav-link"><span class="nav-icon">📋</span> Novo Recibo</a></li>
+        <li class="nav-item"><a href="recibos.html" class="nav-link"><span class="nav-icon">📂</span> Ver Recibos</a></li>
+        <li class="nav-item"><a href="agenda.html" class="nav-link active"><span class="nav-icon">🗓️</span> Agenda</a></li>
+        <li class="nav-item"><a href="ContasAPagar.html" class="nav-link"><span class="nav-icon">💸</span> Contas a Pagar</a></li>
+        <li class="nav-item"><a href="ContasAReceber.html" class="nav-link"><span class="nav-icon">💰</span> Contas a Receber</a></li>
+      </ul>
+    </nav>
 
-  <main class="agenda-container">
-    <h2>Agenda da Semana</h2>
-    <div class="agenda-actions">
-        <a href="menu.html" class="action-btn" style="background: #ccc; color: var(--text-dark); text-decoration: none;">Voltar ao Menu</a>
-        <button id="openModalBtn" class="action-btn" style="background: #28a745; color: white;">+ Adicionar Agendamento</button>
-    </div>
-
-    <div class="calendar-nav">
-      <button id="prevWeek" class="nav-btn">&lt;</button>
-      <div id="weekDates"></div>
-      <button id="nextWeek" class="nav-btn">&gt;</button>
-    </div>
-
-    <div id="kanban-board">
+    <main class="main-content">
+      <div class="page-header">
+        <h2>Agenda da Semana</h2>
+        <button id="openModalBtn" class="action-btn primary-btn">+ Adicionar Agendamento</button>
       </div>
-  </main>
+
+      <div class="calendar-nav">
+        <button id="prevWeek" class="nav-btn">&lt;</button>
+        <div id="weekDates"></div>
+        <button id="nextWeek" class="nav-btn">&gt;</button>
+      </div>
+
+      <div id="kanban-board">
+        </div>
+    </main>
+  </div>
 
   <div id="addCardModal" class="modal">
     <div class="modal-content">
