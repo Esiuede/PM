@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ######################################################################
     // Verifique se a URL da sua API do Financeiro está correta
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyXECxtIv-2x0fOGobshZ-fti1gFYttTmDraezqqhk2ergT7pUgm-gKm9aqVt4eJMdDiw/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyvTJfLnL_fHdpWGRAw9JpFSPcNhZvdZ6PKQ9YHuQX7lBoJ_d_q-CuFLZtDdmLKyuipyA/exec';
     // ######################################################################
 
     // Elementos do DOM

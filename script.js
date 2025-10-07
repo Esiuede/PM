@@ -11,7 +11,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tipoPagamentoInput = document.getElementById('tipoPagamento');
     
     const API_URL_RECIBOS = 'https://script.google.com/macros/s/AKfycbz7VH4hden3srEFmG95FD_37zGVm-GZYAikS4d4ikR0QxRUp7qDv3z7_giwAAqqtXRiYQ/exec';
-    const API_URL_FINANCEIRO = 'https://script.google.com/macros/s/AKfycbyXECxtIv-2x0fOGobshZ-fti1gFYttTmDraezqqhk2ergT7pUgm-gKm9aqVt4eJMdDiw/exec';
+    
+    // URL da API do Financeiro ATUALIZADA
+    const API_URL_FINANCEIRO = 'https://script.google.com/macros/s/AKfycbyvTJfLnL_fHdpWGRAw9JpFSPcNhZvdZ6PKQ9YHuQX7lBoJ_d_q-CuFLZtDdmLKyuipyA/exec';
 
     // =====================================================================
     // INICIALIZAÇÃO DA MÁSCARA COM IMask.js
@@ -70,7 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             form.querySelector('button[type="submit"]').textContent = 'Atualizar';
             form.elements['nome'].value = recibo.nome || '';
             
-            // Define o valor nos campos com a máscara
             valorTotalMask.value = String(recibo.valorTotal || '').replace('.', ',');
             valorEntradaMask.value = String(recibo.valorEntrada || '').replace('.', ',');
             
@@ -88,7 +89,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             form.elements['inferior'].checked = !!recibo.inferior;
             reciboInput.value = recibo.recibo || '';
             
-            // Calcula o valor restante após preencher os campos
             calcularValorRestante();
         } else {
             alert("Recibo não encontrado!");
@@ -140,23 +140,37 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert('Recibo salvo com sucesso!');
 
             if (action === 'add') {
-                if (API_URL_FINANCEIRO && API_URL_FINANCEIRO !== 'COLE_A_URL_DA_API_DO_FINANCEIRO_AQUI') {
-                    const statusConta = dataRecibo.valorRestante > 0 ? 'A receber' : 'Recebido';
-                    const dataContaAReceber = {
-                        action: 'addContaAReceber',
-                        id: Date.now(),
-                        vencimento: dataRecibo.dataEntrega || dataRecibo.dataRecibo,
-                        cliente: dataRecibo.nome,
-                        valor: dataRecibo.valorRestante,
-                        descricao: `Referente ao recibo Nº ${dataRecibo.recibo}`,
-                        status: statusConta,
-                        reciboId: dataRecibo.id
-                    };
-                    fetch(API_URL_FINANCEIRO, {
+                const statusConta = dataRecibo.valorRestante > 0 ? 'A receber' : 'Recebido';
+                const dataContaAReceber = {
+                    action: 'addContaAReceber',
+                    id: Date.now(),
+                    vencimento: dataRecibo.dataEntrega || dataRecibo.dataRecibo,
+                    cliente: dataRecibo.nome,
+                    valor: dataRecibo.valorRestante,
+                    descricao: `Referente ao recibo Nº ${dataRecibo.recibo}`,
+                    status: statusConta,
+                    reciboId: dataRecibo.id
+                };
+
+                console.log("Enviando para API Financeiro:", dataContaAReceber);
+
+                try {
+                    const responseFinanceiro = await fetch(API_URL_FINANCEIRO, {
                         method: 'POST',
                         body: JSON.stringify(dataContaAReceber),
                         headers: { 'Content-Type': 'text/plain' }
-                    }).then(res => res.json().then(console.log)).catch(console.error);
+                    });
+                    
+                    const resultFinanceiro = await responseFinanceiro.json();
+                    console.log("Resposta da API Financeiro:", resultFinanceiro);
+
+                    if (!resultFinanceiro.success) {
+                        throw new Error(resultFinanceiro.message);
+                    }
+                    
+                } catch (financeiroError) {
+                    console.error("Erro ao criar conta a receber:", financeiroError);
+                    alert("O recibo foi salvo, mas houve um erro ao criar o título no financeiro: " + financeiroError.message);
                 }
             }
             

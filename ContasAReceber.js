@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ######################################################################
-    // COLE AQUI A URL DO SEU SCRIPT DO FINANCEIRO
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyXECxtIv-2x0fOGobshZ-fti1gFYttTmDraezqqhk2ergT7pUgm-gKm9aqVt4eJMdDiw/exec';
+    // CERTIFIQUE-SE DE QUE A URL DO SEU SCRIPT DO FINANCEIRO ESTÁ AQUI
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyvTJfLnL_fHdpWGRAw9JpFSPcNhZvdZ6PKQ9YHuQX7lBoJ_d_q-CuFLZtDdmLKyuipyA/exec';
     // ######################################################################
 
     // --- Elementos do DOM ---
@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- FUNÇÕES DE FORMATAÇÃO ---
     function desformatarMoeda(value) {
+        if (!value) return 0;
         currencyMask.unmaskedValue = value;
         return parseFloat(currencyMask.unmaskedValue) || 0;
     }
@@ -50,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('contaId').value = conta.id;
             document.getElementById('vencimento').value = conta.vencimento ? conta.vencimento.substring(0, 10) : '';
             document.getElementById('cliente').value = conta.cliente;
-            currencyMask.value = String(conta.valor || '').replace('.', ',');
+            currencyMask.value = String(conta.valor || '0').replace('.', ',');
             document.getElementById('descricao').value = conta.descricao;
             document.getElementById('status').value = conta.status;
         } else {
@@ -68,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CARREGAR E RENDERIZAR DADOS ---
     async function carregarContas() {
         try {
-            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Carregando...</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">A carregar...</td></tr>`;
             const response = await fetch(`${API_URL}?action=getContasAReceber`);
             if (!response.ok) throw new Error('Falha ao carregar contas a receber.');
             allContas = await response.json();
@@ -113,20 +114,27 @@ document.addEventListener('DOMContentLoaded', () => {
     contaForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = document.getElementById('contaId').value;
-        // Se tem ID, é edição. Se não, é adição manual.
-        // A automação continua vindo do `script.js`.
-        // Para edição, vamos precisar de uma nova ação no backend. Por agora, vamos focar em adicionar.
-        const action = 'addContaAReceber';
+        
+        // CORREÇÃO: Define a ação correta se estiver a editar ou a adicionar
+        const action = id ? 'editContaAReceber' : 'addContaAReceber';
+
+        let reciboIdOriginal = 'Manual';
+        if (id) {
+            const contaOriginal = allContas.find(c => c.id === parseInt(id));
+            if (contaOriginal) {
+                reciboIdOriginal = contaOriginal.reciboId;
+            }
+        }
 
         const data = {
             action: action,
-            id: Date.now(), // Sempre um novo ID para adição manual
+            id: id ? parseInt(id) : Date.now(),
             vencimento: document.getElementById('vencimento').value,
             cliente: document.getElementById('cliente').value,
             valor: desformatarMoeda(valorInput.value),
             descricao: document.getElementById('descricao').value,
             status: document.getElementById('status').value,
-            reciboId: 'Manual' // Indica que foi adicionado manualmente
+            reciboId: reciboIdOriginal
         };
 
         try {
