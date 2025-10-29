@@ -27,7 +27,11 @@
     <main class="main-content">
       <div class="page-header">
         <h2>Controle de Contas a Receber</h2>
-        <button id="addContaBtn" class="action-btn primary-btn">+ Adicionar Conta</button>
+        <div>
+          <button id="openPixModalBtn" class="action-btn pix-btn"> QR CODE Pix</button>
+          
+          <button id="addContaBtn" class="action-btn primary-btn">+ Adicionar Conta</button>
+        </div>
       </div>
 
       <div class="table-container">
@@ -79,6 +83,22 @@
       </form>
     </div>
   </div>
+
+  <div id="pixModal" class="modal">
+    <div class="modal-content" style="text-align: center;">
+      <span class="close-btn">&times;</span>
+      <h3>Pagamento via Pix</h3>
+      
+      <img id="pixQrCodeImg" src="./imgs/qrcode-pix.jpg" alt="QR Code Pix">
+      
+      <p id="pixLegend">
+        Escaneie o QR Code ou use a chave abaixo:
+        <br>
+        <strong>(brunosued99@gmail.com)</strong>
+      </p>
+    </div>
+  </div>
+
 
   <script src="ContasAReceber.js"></script>
 </body>

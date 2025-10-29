@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_URL = 'https://script.google.com/macros/s/AKfycbyvTJfLnL_fHdpWGRAw9JpFSPcNhZvdZ6PKQ9YHuQX7lBoJ_d_q-CuFLZtDdmLKyuipyA/exec';
     // ######################################################################
 
-    // --- Elementos do DOM ---
+    // --- Elementos do DOM (Modal de Contas) ---
     const tableBody = document.getElementById('contasReceberTable').querySelector('tbody');
     const modal = document.getElementById('contaModal');
     const addContaBtn = document.getElementById('addContaBtn');
@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTitle = document.getElementById('modalTitle');
     const valorInput = document.getElementById('valor');
     let allContas = [];
+
+    // --- Elementos do DOM (NOVO MODAL PIX) ---
+    const pixModal = document.getElementById('pixModal');
+    const openPixModalBtn = document.getElementById('openPixModalBtn');
+    const closePixBtn = pixModal.querySelector('.close-btn');
+
 
     // --- MÁSCARA DE MOEDA (IMask.js) ---
     const currencyMask = IMask(valorInput, {
@@ -42,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(numericValue);
     }
 
-    // --- LÓGICA DO MODAL ---
+    // --- LÓGICA DO MODAL (Adicionar Conta) ---
     const openModal = (conta = null) => {
         contaForm.reset();
         currencyMask.value = '';
@@ -64,7 +70,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addContaBtn.addEventListener('click', () => openModal());
     closeBtn.addEventListener('click', closeModal);
-    window.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
+
+    // --- LÓGICA DO MODAL (QRCODE PIX) ---
+    openPixModalBtn.addEventListener('click', () => {
+        pixModal.style.display = 'block';
+    });
+    closePixBtn.addEventListener('click', () => {
+        pixModal.style.display = 'none';
+    });
+
+
+    // --- Fechar modals ao clicar fora ---
+    window.addEventListener('click', (event) => { 
+        if (event.target === modal) closeModal(); 
+        if (event.target === pixModal) {
+            pixModal.style.display = 'none';
+        }
+    });
 
     // --- CARREGAR E RENDERIZAR DADOS ---
     async function carregarContas() {
@@ -141,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(API_URL, {
                 method: 'POST',
                 body: JSON.stringify(data),
-                headers: { 'Content-Type': 'text/plain' }
+                headers: { 'Content-Type': 'text-plain' }
             });
             const result = await response.json();
             if (!result.success) throw new Error(result.message);

@@ -855,3 +855,45 @@ table tr:hover {
 .status-a-pagar .status-tag { background-color: #f4a261; } /* Laranja */
 .status-pago .status-tag { background-color: #28a745; } /* Verde */
 .status-vencida .status-tag { background-color: #e63946; } /* Vermelho */
+
+/* =================================== */
+/* ESTILOS PARA O BOTÃO E MODAL PIX      */
+/* =================================== */
+
+/* Estilo para o novo botão Pix (cor verde) */
+.action-btn.pix-btn {
+  background-color: var(--primary-color); /* Verde Pix */
+  color: var(--text-light);
+  margin-right: 10px; /* Espaço entre os botões */
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.action-btn.pix-btn:hover {
+  background-color: #44291f; /* Verde mais escuro */
+}
+
+/* Ajuste no cabeçalho da página para os botões */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Imagem do QR Code dentro do modal */
+#pixQrCodeImg {
+  max-width: 250px; /* Tamanho máximo da imagem */
+  width: 100%;
+  height: auto;
+  margin-top: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* Legenda abaixo do QR Code */
+#pixLegend {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.5;
+}
