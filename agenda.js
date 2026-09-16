@@ -1,224 +1,198 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const kanbanBoard = document.getElementById('kanban-board');
-    const weekDatesDiv = document.getElementById('weekDates');
-    const prevWeekBtn = document.getElementById('prevWeek');
-    const nextWeekBtn = document.getElementById('nextWeek');
-    const openModalBtn = document.getElementById('openModalBtn');
-    const modal = document.getElementById('addCardModal');
-    const closeBtn = document.querySelector('.close-btn');
-    const agendamentoForm = document.getElementById('agendamentoForm');
+document.addEventListener('DOMContentLoaded', async () => {
+  const auth = await window.pmAuthReady;
+  if (!auth.authenticated) return;
 
-    const API_URL = 'https://script.google.com/macros/s/AKfycbz7VH4hden3srEFmG95FD_37zGVm-GZYAikS4d4ikR0QxRUp7qDv3z7_giwAAqqtXRiYQ/exec';
+  const board = document.getElementById('kanban-board');
+  const weekDates = document.getElementById('weekDates');
+  const prevWeekBtn = document.getElementById('prevWeek');
+  const nextWeekBtn = document.getElementById('nextWeek');
+  const openModalBtn = document.getElementById('openModalBtn');
+  const modal = document.getElementById('addCardModal');
+  const closeBtn = modal.querySelector('.close-btn');
+  const form = document.getElementById('agendamentoForm');
+  const formMessage = document.getElementById('agendaFormMessage');
 
-    let currentWeekStart = getStartOfWeek(new Date());
+  let currentWeekStart = startOfWeek(new Date());
 
-    function getStartOfWeek(date) {
-        const start = new Date(date);
-        const day = start.getDay();
-        const diff = start.getDate() - day + (day === 0 ? -6 : 1);
-        start.setDate(diff);
-        start.setHours(0, 0, 0, 0);
-        return start;
+  function startOfWeek(date) {
+    const result = new Date(date);
+    const day = result.getDay();
+    const diff = result.getDate() - day + (day === 0 ? -6 : 1);
+    result.setDate(diff);
+    result.setHours(0, 0, 0, 0);
+    return result;
+  }
+
+  function toIsoDate(date) {
+    return [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, '0'),
+      String(date.getDate()).padStart(2, '0')
+    ].join('-');
+  }
+
+  function formatDate(date) {
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit'
+    });
+  }
+
+  function normalizeType(type) {
+    return (type || 'prova')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '-');
+  }
+
+  function openModal() {
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.getElementById('nomeCliente').focus();
+  }
+
+  function closeModal() {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    formMessage.textContent = '';
+  }
+
+  function renderWeekSkeleton() {
+    board.replaceChildren();
+    const week = [];
+
+    for (let i = 0; i < 7; i += 1) {
+      const day = new Date(currentWeekStart);
+      day.setDate(currentWeekStart.getDate() + i);
+      week.push(day);
+
+      const column = document.createElement('section');
+      column.className = 'day-column';
+      column.dataset.date = toIsoDate(day);
+
+      const header = document.createElement('div');
+      header.className = 'day-header';
+      header.textContent = `${day
+        .toLocaleDateString('pt-BR', { weekday: 'long' })
+        .replace(/^./, (char) => char.toUpperCase())} - ${day.getDate()}`;
+
+      const list = document.createElement('div');
+      list.className = 'day-list';
+
+      column.append(header, list);
+      board.appendChild(column);
     }
 
-    function formatDate(date) {
-        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    weekDates.textContent = `${formatDate(week[0])} - ${formatDate(week[6])}`;
+    return week;
+  }
+
+  function createCard(item) {
+    const card = document.createElement('article');
+    card.className = `card card-${normalizeType(item.tipo)}`;
+
+    const title = document.createElement('div');
+    title.className = 'card-title';
+    title.textContent = `${item.tipo} - ${item.nome || 'Sem nome'}`;
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    const time = document.createElement('div');
+    time.textContent = `Horário: ${item.hora ? item.hora.slice(0, 5) : 'N/A'}`;
+
+    const receipt = document.createElement('div');
+    receipt.textContent = item.reciboNumero
+      ? `Recibo: ${item.reciboNumero}`
+      : 'Agendamento avulso';
+
+    body.append(time, receipt);
+    card.append(title, body);
+    return card;
+  }
+
+  async function loadAppointments() {
+    const week = renderWeekSkeleton();
+    const start = toIsoDate(week[0]);
+    const end = toIsoDate(week[6]);
+
+    try {
+      const appointments = await window.PMData.listAgendaBetween(start, end);
+
+      for (const item of appointments) {
+        const column = board.querySelector(`[data-date="${item.data}"] .day-list`);
+        if (column) column.appendChild(createCard(item));
+      }
+
+      board.querySelectorAll('.day-list').forEach((list) => {
+        if (!list.children.length) {
+          const empty = document.createElement('p');
+          empty.className = 'day-empty';
+          empty.textContent = 'Sem agendamentos';
+          list.appendChild(empty);
+        }
+      });
+    } catch (error) {
+      console.error('Erro ao carregar agenda:', error);
+      const errorBox = document.createElement('p');
+      errorBox.className = 'error-state';
+      errorBox.textContent = 'Não foi possível carregar a agenda.';
+      board.replaceChildren(errorBox);
     }
+  }
 
-    function formatTime(timeString) {
-        if (!timeString || typeof timeString !== 'string') {
-            return 'N/A';
-        }
-        const timeMatch = timeString.match(/(\d{2}:\d{2})/);
-        return timeMatch ? timeMatch[0] : 'N/A';
+  openModalBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+
+  window.addEventListener('click', (event) => {
+    if (event.target === modal) closeModal();
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+      closeModal();
     }
+  });
 
-    function renderWeek() {
-        kanbanBoard.innerHTML = '';
-        const week = [];
-        const start = new Date(currentWeekStart);
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-        for (let i = 0; i < 7; i++) {
-            const day = new Date(start);
-            day.setDate(start.getDate() + i);
-            week.push(day);
-        }
+    const payload = {
+      nome_cliente: document.getElementById('nomeCliente').value.trim(),
+      tipo: document.getElementById('tipoAtendimento').value,
+      data: document.getElementById('dataAtendimento').value,
+      hora: document.getElementById('horaAtendimento').value
+    };
 
-        const weekString = `${formatDate(week[0])} - ${formatDate(week[6])}`;
-        weekDatesDiv.textContent = weekString;
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    button.textContent = 'Salvando...';
 
-        week.forEach(day => {
-            const dayColumn = document.createElement('div');
-            dayColumn.className = 'day-column';
-            const dayName = day.toLocaleDateString('pt-BR', { weekday: 'long' });
-            const dayDate = day.getDate();
-            dayColumn.innerHTML = `<div class="day-header">${dayName.charAt(0).toUpperCase() + dayName.slice(1)} - ${dayDate}</div>`;
-            dayColumn.id = `day-${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`;
-            kanbanBoard.appendChild(dayColumn);
-        });
-        return week;
+    try {
+      await window.PMData.createAgendamento(payload);
+      form.reset();
+      closeModal();
+      await loadAppointments();
+    } catch (error) {
+      console.error('Erro ao salvar agendamento:', error);
+      formMessage.textContent = 'Não foi possível salvar o agendamento.';
+      formMessage.className = 'form-message error';
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Salvar';
     }
+  });
 
-    async function loadAppointments() {
-        const week = renderWeek();
-        const appointmentsByDay = {}; 
-        
-        week.forEach(day => {
-            const dayId = `day-${day.getFullYear()}-${day.getMonth()}-${day.getDate()}`;
-            appointmentsByDay[dayId] = [];
-        });
-
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Falha ao carregar os dados.');
-            const records = await response.json();
-
-            records.forEach(record => {
-                const materialType = record.material || '';
-                const materialLowerCase = materialType.toLowerCase();
-
-                // Lógica para identificar e agrupar todos os agendamentos
-                const checkAndAddAppointment = (type, dateField, timeField) => {
-                    if (record[dateField]) {
-                        const date = new Date(record[dateField]);
-                        const time = record[timeField];
-                        const dayId = `day-${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-                        
-                        if (appointmentsByDay[dayId]) {
-                            let appointmentType = type;
-                            if (type === 'Prova' && (materialLowerCase.includes('moldagem') || materialLowerCase.includes('conserto') || materialLowerCase.includes('domicilio'))) {
-                                appointmentType = record.material; // Usa o valor do campo material
-                            }
-                            
-                            appointmentsByDay[dayId].push({ 
-                                type: appointmentType, 
-                                date: date, 
-                                time: time, 
-                                recibo: record.recibo, 
-                                nome: record.nome 
-                            });
-                        }
-                    }
-                };
-
-                // Verifica Prova/Moldagem/Conserto/Domicilio (usa diaProva)
-                checkAndAddAppointment('Prova', 'diaProva', 'horaProva');
-                
-                // Verifica Entrega (usa dataEntrega) - não deve ser duplicado com Prova
-                checkAndAddAppointment('Entrega', 'dataEntrega', 'horaEntrega');
-            });
-
-            // Ordena e Renderiza
-            Object.keys(appointmentsByDay).forEach(dayId => {
-                const appointments = appointmentsByDay[dayId];
-                
-                // ORDENAÇÃO POR HORÁRIO
-                appointments.sort((a, b) => {
-                    const timeA = formatTime(a.time);
-                    const timeB = formatTime(b.time);
-                    return timeA.localeCompare(timeB);
-                });
-
-                const dayColumn = document.getElementById(dayId);
-                if (dayColumn) {
-                    appointments.forEach(appointment => {
-                        const card = document.createElement('div');
-                        
-                        // Garante que o nome da classe seja válido (ex: card-domicilio)
-                        const cardClassName = `card card-${appointment.type.toLowerCase().replace(/ /g, '-')}`; 
-                        
-                        let displayTime = formatTime(appointment.time);
-
-                        card.className = cardClassName;
-                        card.innerHTML = `
-                            <div class="card-title">${appointment.type} - ${appointment.nome}</div>
-                            <div class="card-body">
-                                Horário: ${displayTime}<br>
-                                Recibo: ${appointment.recibo || 'N/A'}
-                            </div>
-                        `;
-                        dayColumn.appendChild(card);
-                    });
-                }
-            });
-
-        } catch (error) {
-            console.error('Erro ao carregar a agenda:', error);
-            kanbanBoard.innerHTML = '<p style="text-align:center; color:red;">Não foi possível carregar a agenda. Verifique a API.</p>';
-        }
-    }
-
-    // Lógica para abrir/fechar o modal
-    openModalBtn.addEventListener('click', () => {
-        modal.style.display = 'block';
-    });
-
-    closeBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
-
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-
-    agendamentoForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const nomeCliente = document.getElementById('nomeCliente').value;
-        const tipoAtendimento = document.getElementById('tipoAtendimento').value;
-        const dataAtendimento = document.getElementById('dataAtendimento').value;
-        const horaAtendimento = document.getElementById('horaAtendimento').value;
-
-        let dataToSave = {
-            id: Date.now(),
-            action: 'add',
-            nome: nomeCliente,
-            recibo: 'N/A',
-        };
-
-        if (tipoAtendimento === 'Prova') {
-            dataToSave.diaProva = dataAtendimento;
-            dataToSave.horaProva = horaAtendimento;
-        } else if (tipoAtendimento === 'Entrega') {
-            dataToSave.dataEntrega = dataAtendimento;
-            dataToSave.horaEntrega = horaAtendimento;
-        } else {
-            dataToSave.diaProva = dataAtendimento;
-            dataToSave.horaProva = horaAtendimento;
-            dataToSave.material = tipoAtendimento;
-        }
-        
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify(dataToSave),
-                headers: {
-                    'Content-Type': 'text/plain'
-                }
-            });
-            if (!response.ok) throw new Error('Falha ao salvar agendamento.');
-
-            alert('Agendamento salvo com sucesso!');
-            modal.style.display = 'none';
-            agendamentoForm.reset();
-            loadAppointments();
-        } catch (error) {
-            alert('Erro ao salvar agendamento.');
-            console.error('Erro ao salvar:', error);
-        }
-    });
-
-    prevWeekBtn.addEventListener('click', () => {
-        currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-        loadAppointments();
-    });
-
-    nextWeekBtn.addEventListener('click', () => {
-        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-        loadAppointments();
-    });
-
+  prevWeekBtn.addEventListener('click', () => {
+    currentWeekStart.setDate(currentWeekStart.getDate() - 7);
     loadAppointments();
+  });
+
+  nextWeekBtn.addEventListener('click', () => {
+    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+    loadAppointments();
+  });
+
+  await loadAppointments();
 });
