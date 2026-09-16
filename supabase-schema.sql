@@ -1,4 +1,4 @@
--- PM / Sistema Sheyla - estrutura Supabase
+-- ProtheSys - estrutura Supabase
 -- Execute este arquivo no SQL Editor de um projeto Supabase novo.
 
 create extension if not exists pgcrypto;
@@ -87,9 +87,15 @@ begin
   values (
     coalesce(new.data_entrega, new.data_recibo),
     new.nome,
-    new.valor_restante,
+    case
+      when new.valor_restante = 0 then new.valor_total
+      else new.valor_restante
+    end,
     'Referente ao recibo Nº ' || new.numero,
-    case when new.valor_restante = 0 then 'Recebido' else 'A receber' end,
+    case
+      when new.valor_restante = 0 then 'Recebido'
+      else 'A receber'
+    end,
     new.id
   )
   on conflict (recibo_id) do update set
@@ -97,7 +103,11 @@ begin
     cliente = excluded.cliente,
     valor = excluded.valor,
     descricao = excluded.descricao,
-    status = case when excluded.valor = 0 then 'Recebido' else public.contas_receber.status end,
+    status = case
+      when excluded.status = 'Recebido' then 'Recebido'
+      when public.contas_receber.status = 'Em atraso' then 'Em atraso'
+      else 'A receber'
+    end,
     updated_at = now();
   return new;
 end;
