@@ -2,8 +2,8 @@
 // A chave anon/publishable é própria para uso no front-end quando o RLS está habilitado.
 // Substitua os valores abaixo pelos dados do projeto PM no Supabase.
 window.PM_SUPABASE_CONFIG = {
-  url: 'COLE_AQUI_A_URL_DO_SUPABASE',
-  anonKey: 'COLE_AQUI_A_CHAVE_ANON_DO_SUPABASE'
+  url: 'https://errvcosgvzzgkceawbcc.supabase.co',
+  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVycnZjb3Nndnp6Z2tjZWF3YmNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MTg4NjIsImV4cCI6MjEwNTA5NDg2Mn0.gXlgJzfBHLyyqgHMcqzDKuGjCEALmnLxkrXEEhojtP4'
 };
 
 (function initSupabase() {
