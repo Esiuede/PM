@@ -19,17 +19,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     row.appendChild(cell);
   }
 
+  function renderEmpty(message, className = 'table-empty') {
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+    cell.colSpan = 9;
+    cell.className = className;
+    cell.textContent = message;
+    row.appendChild(cell);
+    tableBody.replaceChildren(row);
+  }
+
   function render(list) {
     tableBody.replaceChildren();
 
     if (!list.length) {
-      const row = document.createElement('tr');
-      const cell = document.createElement('td');
-      cell.colSpan = 10;
-      cell.className = 'table-empty';
-      cell.textContent = 'Nenhum recibo encontrado.';
-      row.appendChild(cell);
-      tableBody.appendChild(row);
+      renderEmpty('Nenhum recibo encontrado.');
       return;
     }
 
@@ -101,7 +105,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     render(recibos);
   } catch (error) {
     console.error('Erro ao carregar recibos:', error);
-    tableBody.innerHTML =
-      '<tr><td colspan="10" class="table-empty error-state">Não foi possível carregar os recibos.</td></tr>';
+    renderEmpty('Não foi possível carregar os recibos.', 'table-empty error-state');
   }
 });
