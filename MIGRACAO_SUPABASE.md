@@ -1,4 +1,4 @@
-# Migração do PM para Supabase
+# Migração do ProtheSys para Supabase
 
 Esta branch (`modernizacao-supabase`) troca o Google Sheets/Apps Script por Supabase sem alterar o `main` atual.
 
@@ -9,11 +9,12 @@ Esta branch (`modernizacao-supabase`) troca o Google Sheets/Apps Script por Supa
 - Conta a receber vinculada ao recibo criada/sincronizada por trigger no banco.
 - UUID como identificador técnico e número do recibo sequencial no banco.
 - RLS habilitado: as tabelas são acessíveis somente por usuários autenticados.
-- Dados retornados do banco são renderizados com `textContent` nas listagens, evitando injeção de HTML.
+- Dados retornados do banco são renderizados com `textContent` nas listagens, evitando injeção de HTML com dados cadastrados.
+- `prothesys.css` complementa o CSS legado, preservando a identidade visual atual e corrigindo o layout das telas modernizadas.
 
 ## Preparação
 
-1. Crie um projeto Supabase para o PM.
+1. Crie um projeto Supabase para o ProtheSys.
 2. Execute `supabase-schema.sql` no SQL Editor.
 3. Em Authentication > Users, crie o usuário que utilizará o sistema.
 4. Copie Project URL e anon/publishable key para `supabase-config.js`.
