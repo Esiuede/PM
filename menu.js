@@ -1,124 +1,111 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const agendaContainer = document.getElementById('agendaDoDia');
-    const recibosContainer = document.getElementById('ultimosRecibos');
+document.addEventListener('DOMContentLoaded', async () => {
+  const auth = await window.pmAuthReady;
+  if (!auth.authenticated) return;
 
-    // URL da sua API do Google Apps Script
-    const API_URL = 'https://script.google.com/macros/s/AKfycbz7VH4hden3srEFmG95FD_37zGVm-GZYAikS4d4ikR0QxRUp7qDv3z7_giwAAqqtXRiYQ/exec';
+  const agendaContainer = document.getElementById('agendaDoDia');
+  const recibosContainer = document.getElementById('ultimosRecibos');
 
-    // Função para formatar a data no formato YYYY-MM-DD para comparação
-    const getTodayString = () => {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
+  const today = new Date();
+  const todayString = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, '0'),
+    String(today.getDate()).padStart(2, '0')
+  ].join('-');
 
-    // Função para buscar e exibir os agendamentos do dia
-    const carregarAgendaDoDia = async () => {
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Falha ao carregar dados da agenda.');
-            
-            const records = await response.json();
-            const todayStr = getTodayString();
-            const agendamentosDoDia = [];
+  function normalizeType(type) {
+    return (type || 'prova')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '-');
+  }
 
-            records.forEach(rec => {
-                // Verifica se a data da prova é hoje
-                if (rec.diaProva && rec.diaProva.startsWith(todayStr)) {
-                    agendamentosDoDia.push({
-                        tipo: rec.material && (rec.material.toLowerCase().includes('moldagem') || rec.material.toLowerCase().includes('conserto') || rec.material.toLowerCase().includes('domicilio')) ? rec.material : 'Prova',
-                        nome: rec.nome,
-                        hora: rec.horaProva || 'N/A'
-                    });
-                }
-                // Verifica se a data da entrega é hoje
-                if (rec.dataEntrega && rec.dataEntrega.startsWith(todayStr)) {
-                    agendamentosDoDia.push({
-                        tipo: 'Entrega',
-                        nome: rec.nome,
-                        hora: rec.horaEntrega || 'N/A'
-                    });
-                }
-            });
+  function createAppointmentCard(item) {
+    const card = document.createElement('div');
+    card.className = `appointment-card card-${normalizeType(item.tipo)}`;
 
-            // Ordena os agendamentos por hora
-            agendamentosDoDia.sort((a, b) => (a.hora || '').localeCompare(b.hora || ''));
+    const time = document.createElement('div');
+    time.className = 'appointment-time';
+    time.textContent = item.hora ? item.hora.slice(0, 5) : '--:--';
 
-            agendaContainer.innerHTML = ''; // Limpa a mensagem de "carregando"
+    const details = document.createElement('div');
+    details.className = 'appointment-details';
 
-            if (agendamentosDoDia.length === 0) {
-                agendaContainer.innerHTML = '<p>Nenhum agendamento para hoje.</p>';
-                return;
-            }
+    const title = document.createElement('div');
+    title.className = 'appointment-title';
+    title.textContent = item.tipo;
 
-            agendamentosDoDia.forEach(agendamento => {
-                const horaFormatada = typeof agendamento.hora === 'string' ? agendamento.hora.substring(0, 5) : 'N/A';
-                const card = document.createElement('div');
-                card.className = `appointment-card card-${agendamento.tipo.toLowerCase().replace(/ /g, '-')}`;
-                card.innerHTML = `
-                    <div class="appointment-time">${horaFormatada}</div>
-                    <div class="appointment-details">
-                        <div class="appointment-title">${agendamento.tipo}</div>
-                        <div class="appointment-patient">${agendamento.nome}</div>
-                    </div>
-                `;
-                agendaContainer.appendChild(card);
-            });
+    const patient = document.createElement('div');
+    patient.className = 'appointment-patient';
+    patient.textContent = item.nome || 'Sem nome';
 
-        } catch (error) {
-            console.error("Erro ao carregar agenda:", error);
-            agendaContainer.innerHTML = '<p style="color:red;">Erro ao carregar agenda.</p>';
-        }
-    };
+    details.append(title, patient);
+    card.append(time, details);
+    return card;
+  }
 
-    // Função para buscar e exibir os últimos recibos
-    const carregarUltimosRecibos = async () => {
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Falha ao carregar recibos.');
+  function createReceiptItem(recibo) {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'receipt-item receipt-item-button';
 
-            const recibos = await response.json();
-            
-            // Ordena por número de recibo (do maior para o menor) e pega os 5 últimos
-            // CÓDIGO NOVO (CORRIGIDO)
-            const ultimosRecibos = recibos
-                .sort((a, b) => parseInt(b.id || 0) - parseInt(a.id || 0))
-                .slice(0, 5);
-            
-            recibosContainer.innerHTML = ''; // Limpa a mensagem de "carregando"
+    const info = document.createElement('span');
+    info.className = 'receipt-info';
 
-            if (ultimosRecibos.length === 0) {
-                recibosContainer.innerHTML = '<p>Nenhum recibo cadastrado.</p>';
-                return;
-            }
+    const number = document.createElement('span');
+    number.className = 'receipt-number';
+    number.textContent = `Recibo Nº ${recibo.numero}`;
 
-            ultimosRecibos.forEach(recibo => {
-                const item = document.createElement('div');
-                item.className = 'receipt-item';
-                item.innerHTML = `
-                    <div class="receipt-info">
-                        <span class="receipt-number">Recibo - ${String(recibo.recibo || 'N/A').padStart(2, '0')}</span>
-                        <span class="receipt-patient">${recibo.nome}</span>
-                    </div>
-                    <div class="receipt-actions">
-                        <button class="icon-btn">👁️‍🗨️</button> </div>
-                `;
-                // Adiciona um evento de clique para redirecionar para a página de edição
-                item.addEventListener('click', () => {
-                    window.location.href = `cadastro.html?id=${recibo.id}`;
-                });
-                recibosContainer.appendChild(item);
-            });
+    const patient = document.createElement('span');
+    patient.className = 'receipt-patient';
+    patient.textContent = recibo.nome || 'Sem nome';
 
-        } catch (error) {
-            console.error("Erro ao carregar recibos:", error);
-            recibosContainer.innerHTML = '<p style="color:red;">Erro ao carregar recibos.</p>';
-        }
-    };
+    const action = document.createElement('span');
+    action.className = 'receipt-open';
+    action.textContent = 'Ver';
 
-    // Carrega as duas seções
-    carregarAgendaDoDia();
-    carregarUltimosRecibos();
+    info.append(number, patient);
+    item.append(info, action);
+
+    item.addEventListener('click', () => {
+      window.location.href = `cadastro.html?id=${encodeURIComponent(recibo.id)}`;
+    });
+
+    return item;
+  }
+
+  try {
+    const [agenda, recibos] = await Promise.all([
+      window.PMData.listAgendaForDate(todayString),
+      window.PMData.listRecentRecibos(5)
+    ]);
+
+    agendaContainer.replaceChildren();
+    if (!agenda.length) {
+      const empty = document.createElement('p');
+      empty.className = 'empty-state';
+      empty.textContent = 'Nenhum agendamento para hoje.';
+      agendaContainer.appendChild(empty);
+    } else {
+      agenda.forEach((item) => agendaContainer.appendChild(createAppointmentCard(item)));
+    }
+
+    recibosContainer.replaceChildren();
+    if (!recibos.length) {
+      const empty = document.createElement('p');
+      empty.className = 'empty-state';
+      empty.textContent = 'Nenhum recibo cadastrado.';
+      recibosContainer.appendChild(empty);
+    } else {
+      recibos.forEach((recibo) => recibosContainer.appendChild(createReceiptItem(recibo)));
+    }
+  } catch (error) {
+    console.error('Erro ao carregar dashboard:', error);
+
+    agendaContainer.textContent = 'Não foi possível carregar a agenda.';
+    agendaContainer.classList.add('error-state');
+
+    recibosContainer.textContent = 'Não foi possível carregar os recibos.';
+    recibosContainer.classList.add('error-state');
+  }
 });

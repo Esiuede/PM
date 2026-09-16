@@ -2,82 +2,49 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Cadastro de Recibo - Sheyla Cavalcanti</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo Recibo - Sheyla Cavalcanti</title>
   <link rel="stylesheet" href="style_full.css">
-  <script src="https://unpkg.com/imask"></script>
   <link rel="shortcut icon" type="image/x-icon" href="./imgs/minIcon.jpg">
 </head>
 <body>
   <div class="page-container">
-    <nav class="sidebar">
-      <div class="sidebar-header">
-        <div class="brand-title">Sheyla Cavalcanti</div>
-        <div class="brand-sub">Laboratório</div>
-      </div>
-      <ul class="nav-list">
-        <li class="nav-item"><a href="menu.html" class="nav-link"><span class="nav-icon">📊</span> Dashboard</a></li>
-        <li class="nav-item"><a href="cadastro.html" class="nav-link active"><span class="nav-icon">📋</span> Novo Recibo</a></li>
-        <li class="nav-item"><a href="recibos.html" class="nav-link"><span class="nav-icon">📂</span> Ver Recibos</a></li>
-        <li class="nav-item"><a href="agenda.html" class="nav-link"><span class="nav-icon">🗓️</span> Agenda</a></li>
-        <li class="nav-item"><a href="ContasAPagar.html" class="nav-link"><span class="nav-icon">💸</span> Contas a Pagar</a></li>
-        <li class="nav-item"><a href="ContasAReceber.html" class="nav-link"><span class="nav-icon">💰</span> Contas a Receber</a></li>
-      </ul>
-    </nav>
-
+      <nav class="sidebar" aria-label="Navegação principal">
+        <div class="sidebar-header"><div class="brand-title">Sheyla Cavalcanti</div><div class="brand-sub">Laboratório</div></div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="menu.html" class="nav-link"><span class="nav-icon">📊</span>Dashboard</a></li>
+          <li class="nav-item"><a href="cadastro.html" class="nav-link active" aria-current="page"><span class="nav-icon">📋</span>Novo Recibo</a></li>
+          <li class="nav-item"><a href="recibos.html" class="nav-link"><span class="nav-icon">📂</span>Ver Recibos</a></li>
+          <li class="nav-item"><a href="agenda.html" class="nav-link"><span class="nav-icon">🗓️</span>Agenda</a></li>
+          <li class="nav-item"><a href="ContasAPagar.html" class="nav-link"><span class="nav-icon">💸</span>Contas a Pagar</a></li>
+          <li class="nav-item"><a href="ContasAReceber.html" class="nav-link"><span class="nav-icon">💰</span>Contas a Receber</a></li>
+        </ul>
+      </nav>
     <main class="main-content">
-      <div class="page-header">
-        <h2>Cadastro de Recibo</h2>
-      </div>
-      
-      <form id="reciboForm">
-        <h6>Data do Recibo</h6>
-        <input type="date" id="dataRecibo" name="dataRecibo" readonly>
-
-        <input type="text" name="nome" placeholder="Nome" required>
-        <input type="number" name="contato" placeholder="Contato">
-        <input type="text" name="cor" placeholder="Cor">
-        <input type="text" name="modelo" placeholder="Modelo">
-        <input type="number" name="quantidade" placeholder="Quantidade">
-        <input type="text" name="material" placeholder="Material Usado">
-        
-        <h6>Valor Total</h6>
-        <input type="text" id="valorTotal" name="valorTotal" placeholder="R$ 0,00">
-
-        <h6>Valor de Entrada</h6>
-        <input type="text" id="valorEntrada" name="valorEntrada" placeholder="R$ 0,00">
-
-        <h6>Valor Restante</h6>
-        <input type="text" id="valorRestante" name="valorRestante" placeholder="R$ 0,00" readonly>
-
-        <h6>Tipo de Pagamento</h6>
-        <select id="tipoPagamento" name="tipoPagamento">
-            <option value="">Selecione o tipo</option>
-            <option value="Dinheiro">Dinheiro</option>
-            <option value="Pix">Pix</option>
-            <option value="Cartao">Cartão</option>
-        </select>
-
-        <h6>Dia de Prova e Hora</h6>
-        <input type="date" name="diaProva">
-        <input type="time" name="horaProva">
-        <h6>Dia de Entrega e Hora</h6>
-        <input type="date" name="dataEntrega">
-        <input type="time" name="horaEntrega">
-        
-        <div class="checkbox-group">
-          <label><input type="checkbox" name="superior"> Superior</label>
-          <label><input type="checkbox" name="inferior"> Inferior</label>
-        </div>
-        
-        <label for="recibo">Nº Recibo:</label>
-        <input type="text" id="recibo" name="recibo" readonly>
-
-        <button type="submit">Salvar</button>
+      <div class="page-header"><div><p class="eyebrow">Próteses e serviços</p><h1 id="pageTitle">Novo Recibo</h1></div><a href="recibos.html" class="action-btn secondary-btn">Ver recibos</a></div>
+      <form id="reciboForm" class="content-card form-grid">
+        <div class="form-field"><label for="dataRecibo">Data do recibo</label><input type="date" id="dataRecibo" name="dataRecibo" required></div>
+        <div class="form-field"><label for="recibo">Nº do recibo</label><input type="text" id="recibo" name="recibo" value="Automático" readonly></div>
+        <div class="form-field full-width"><label for="nome">Nome do cliente</label><input type="text" id="nome" name="nome" placeholder="Nome completo" maxlength="120" required></div>
+        <div class="form-field"><label for="contato">Contato</label><input type="tel" id="contato" name="contato" placeholder="(81) 99999-9999" maxlength="30"></div>
+        <div class="form-field"><label for="quantidade">Quantidade</label><input type="number" id="quantidade" name="quantidade" min="1" step="1" value="1" required></div>
+        <div class="form-field"><label for="cor">Cor</label><input type="text" id="cor" name="cor" placeholder="Ex.: A2" maxlength="80"></div>
+        <div class="form-field"><label for="modelo">Modelo</label><input type="text" id="modelo" name="modelo" maxlength="120"></div>
+        <div class="form-field full-width"><label for="material">Material / serviço</label><input type="text" id="material" name="material" placeholder="Material usado ou tipo de serviço" maxlength="160"></div>
+        <div class="form-field"><label for="valorTotal">Valor total</label><input type="text" id="valorTotal" name="valorTotal" placeholder="R$ 0,00" required></div>
+        <div class="form-field"><label for="valorEntrada">Valor de entrada</label><input type="text" id="valorEntrada" name="valorEntrada" placeholder="R$ 0,00" required></div>
+        <div class="form-field"><label for="valorRestante">Valor restante</label><input type="text" id="valorRestante" name="valorRestante" placeholder="R$ 0,00" readonly></div>
+        <div class="form-field"><label for="tipoPagamento">Forma de pagamento</label><select id="tipoPagamento" name="tipoPagamento"><option value="">Selecione</option><option value="Dinheiro">Dinheiro</option><option value="Pix">Pix</option><option value="Cartão">Cartão</option></select></div>
+        <fieldset class="form-field full-width form-section"><legend>Agenda vinculada ao recibo</legend><div class="form-grid nested-grid">
+          <div class="form-field"><label for="diaProva">Dia de prova</label><input type="date" id="diaProva" name="diaProva"></div><div class="form-field"><label for="horaProva">Hora da prova</label><input type="time" id="horaProva" name="horaProva"></div><div class="form-field"><label for="dataEntrega">Dia de entrega</label><input type="date" id="dataEntrega" name="dataEntrega"></div><div class="form-field"><label for="horaEntrega">Hora da entrega</label><input type="time" id="horaEntrega" name="horaEntrega"></div>
+        </div></fieldset>
+        <fieldset class="form-field full-width form-section"><legend>Arcada</legend><div class="checkbox-group horizontal"><label><input type="checkbox" name="superior"> Superior</label><label><input type="checkbox" name="inferior"> Inferior</label></div></fieldset>
+        <p id="formMessage" class="form-message full-width" role="status"></p>
+        <div class="form-actions full-width"><a href="recibos.html" class="action-btn ghost-btn">Cancelar</a><button type="submit" class="primary-submit">Salvar recibo</button></div>
       </form>
     </main>
   </div>
-
-  <script src="script.js"></script>
+  <script src="https://unpkg.com/imask"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="auth.js"></script><script src="data-service.js"></script><script src="script.js"></script>
 </body>
 </html>

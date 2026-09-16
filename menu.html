@@ -1,76 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Menu - Sheyla Cavalcanti </title>
-<link rel="stylesheet" href="style_full.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon" type="image/x-icon" href="./imgs/minIcon.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Sheyla Cavalcanti</title>
+  <link rel="stylesheet" href="style_full.css">
+  <link rel="shortcut icon" type="image/x-icon" href="./imgs/minIcon.jpg">
 </head>
 <body>
   <div class="page-container">
-    <nav class="sidebar">
-      <div class="sidebar-header">
-        <div class="brand-title">Sheyla Cavalcanti</div>
-        <div class="brand-sub">Laboratório</div>
-      </div>
-      <ul class="nav-list">
-        <li class="nav-item">
-          <a href="menu.html" class="nav-link active">
-            <span class="nav-icon">📊</span> 
-            Dashboard
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="cadastro.html" class="nav-link">
-            <span class="nav-icon">📋</span> 
-            Novo Recibo
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="recibos.html" class="nav-link">
-            <span class="nav-icon">📂</span> 
-            Ver Recibos
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="agenda.html" class="nav-link">
-            <span class="nav-icon">🗓️</span> 
-            Agenda
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="ContasAPagar.html" class="nav-link">
-            <span class="nav-icon">💸</span> 
-            Contas a Pagar
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="ContasAReceber.html" class="nav-link">
-            <span class="nav-icon">💰</span> 
-            Contas a Receber
-      </ul>
-    </nav>
+      <nav class="sidebar" aria-label="Navegação principal">
+        <div class="sidebar-header">
+          <div class="brand-title">Sheyla Cavalcanti</div>
+          <div class="brand-sub">Laboratório</div>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="menu.html" class="nav-link active" aria-current="page"><span class="nav-icon">📊</span>Dashboard</a></li>
+          <li class="nav-item"><a href="cadastro.html" class="nav-link"><span class="nav-icon">📋</span>Novo Recibo</a></li>
+          <li class="nav-item"><a href="recibos.html" class="nav-link"><span class="nav-icon">📂</span>Ver Recibos</a></li>
+          <li class="nav-item"><a href="agenda.html" class="nav-link"><span class="nav-icon">🗓️</span>Agenda</a></li>
+          <li class="nav-item"><a href="ContasAPagar.html" class="nav-link"><span class="nav-icon">💸</span>Contas a Pagar</a></li>
+          <li class="nav-item"><a href="ContasAReceber.html" class="nav-link"><span class="nav-icon">💰</span>Contas a Receber</a></li>
+        </ul>
+      </nav>
     <main class="main-content">
+      <div class="page-header">
+        <div>
+          <p class="eyebrow">Visão geral</p>
+          <h1>Dashboard</h1>
+        </div>
+        <a href="cadastro.html" class="action-btn primary-btn">+ Novo recibo</a>
+      </div>
+
       <section class="dashboard-section">
         <div class="section-header">
-          <h2>Agenda do dia</h2>
+          <div>
+            <h2>Agenda do dia</h2>
+            <p>Provas, entregas e atendimentos previstos para hoje.</p>
+          </div>
           <a href="agenda.html" class="action-btn secondary-btn">Agenda completa</a>
         </div>
-        <div class="day-card-container" id="agendaDoDia">
-          <p>Carregando agendamentos...</p>
+        <div class="day-card-container" id="agendaDoDia" aria-live="polite">
+          <p class="loading-state">Carregando agendamentos...</p>
         </div>
       </section>
 
       <section class="dashboard-section">
         <div class="section-header">
-          <h2>Últimos recibos</h2>
+          <div>
+            <h2>Últimos recibos</h2>
+            <p>Acesso rápido aos registros mais recentes.</p>
+          </div>
           <a href="recibos.html" class="action-btn secondary-btn">Todos os recibos</a>
         </div>
-        <div class="receipts-list" id="ultimosRecibos">
-          <p>Carregando recibos...</p>
+        <div class="receipts-list" id="ultimosRecibos" aria-live="polite">
+          <p class="loading-state">Carregando recibos...</p>
         </div>
       </section>
     </main>
-    </div>
+  </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="data-service.js"></script>
   <script src="menu.js"></script>
 </body>
+</html>

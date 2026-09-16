@@ -1,184 +1,146 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const form = document.getElementById('reciboForm');
-    const params = new URLSearchParams(window.location.search);
-    const reciboId = params.get('id');
-    const reciboInput = document.getElementById('recibo');
-    
-    const valorTotalInput = document.getElementById('valorTotal');
-    const valorEntradaInput = document.getElementById('valorEntrada');
-    const valorRestanteInput = document.getElementById('valorRestante');
-    const dataReciboInput = document.getElementById('dataRecibo');
-    const tipoPagamentoInput = document.getElementById('tipoPagamento');
-    
-    const API_URL_RECIBOS = 'https://script.google.com/macros/s/AKfycbz7VH4hden3srEFmG95FD_37zGVm-GZYAikS4d4ikR0QxRUp7qDv3z7_giwAAqqtXRiYQ/exec';
-    
-    // URL da API do Financeiro ATUALIZADA
-    const API_URL_FINANCEIRO = 'https://script.google.com/macros/s/AKfycbyvTJfLnL_fHdpWGRAw9JpFSPcNhZvdZ6PKQ9YHuQX7lBoJ_d_q-CuFLZtDdmLKyuipyA/exec';
+  const auth = await window.pmAuthReady;
+  if (!auth.authenticated) return;
 
-    // =====================================================================
-    // INICIALIZAÇÃO DA MÁSCARA COM IMask.js
-    // =====================================================================
-    const maskOptions = {
-        mask: 'R$ num',
-        blocks: {
-            num: {
-                mask: Number,
-                scale: 2,
-                radix: ',',
-                mapToRadix: ['.'],
-                thousandsSeparator: '.',
-                padFractionalZeros: true
-            }
-        }
+  const form = document.getElementById('reciboForm');
+  const params = new URLSearchParams(window.location.search);
+  const reciboId = params.get('id');
+
+  const valorTotalInput = document.getElementById('valorTotal');
+  const valorEntradaInput = document.getElementById('valorEntrada');
+  const valorRestanteInput = document.getElementById('valorRestante');
+  const dataReciboInput = document.getElementById('dataRecibo');
+  const reciboInput = document.getElementById('recibo');
+  const submitButton = form.querySelector('button[type="submit"]');
+  const formMessage = document.getElementById('formMessage');
+
+  const maskOptions = {
+    mask: 'R$ num',
+    blocks: {
+      num: {
+        mask: Number,
+        scale: 2,
+        radix: ',',
+        mapToRadix: ['.'],
+        thousandsSeparator: '.',
+        padFractionalZeros: true,
+        min: 0
+      }
+    }
+  };
+
+  const valorTotalMask = IMask(valorTotalInput, maskOptions);
+  const valorEntradaMask = IMask(valorEntradaInput, maskOptions);
+
+  const formatCurrency = (value) =>
+    new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(Number(value) || 0);
+
+  function calculateRemaining() {
+    const total = Number(valorTotalMask.unmaskedValue) || 0;
+    const entry = Number(valorEntradaMask.unmaskedValue) || 0;
+    valorRestanteInput.value = formatCurrency(Math.max(total - entry, 0));
+  }
+
+  valorTotalInput.addEventListener('input', calculateRemaining);
+  valorEntradaInput.addEventListener('input', calculateRemaining);
+
+  if (!reciboId) {
+    dataReciboInput.value = new Date().toISOString().slice(0, 10);
+    reciboInput.value = 'Automático';
+  }
+
+  try {
+    if (reciboId) {
+      const recibo = await window.PMData.getRecibo(reciboId);
+
+      form.dataset.mode = 'edit';
+      document.getElementById('pageTitle').textContent = `Editar Recibo Nº ${recibo.numero}`;
+      submitButton.textContent = 'Atualizar recibo';
+
+      dataReciboInput.value = recibo.data_recibo || '';
+      form.elements.nome.value = recibo.nome || '';
+      form.elements.contato.value = recibo.contato || '';
+      form.elements.cor.value = recibo.cor || '';
+      form.elements.modelo.value = recibo.modelo || '';
+      form.elements.quantidade.value = recibo.quantidade || 1;
+      form.elements.material.value = recibo.material || '';
+      form.elements.tipoPagamento.value = recibo.tipo_pagamento || '';
+      form.elements.diaProva.value = recibo.dia_prova || '';
+      form.elements.horaProva.value = recibo.hora_prova || '';
+      form.elements.dataEntrega.value = recibo.data_entrega || '';
+      form.elements.horaEntrega.value = recibo.hora_entrega || '';
+      form.elements.superior.checked = Boolean(recibo.superior);
+      form.elements.inferior.checked = Boolean(recibo.inferior);
+      reciboInput.value = recibo.numero;
+
+      valorTotalMask.value = String(recibo.valor_total ?? 0).replace('.', ',');
+      valorEntradaMask.value = String(recibo.valor_entrada ?? 0).replace('.', ',');
+      calculateRemaining();
+    }
+  } catch (error) {
+    console.error('Erro ao carregar recibo:', error);
+    formMessage.textContent = 'Não foi possível carregar este recibo.';
+    formMessage.className = 'form-message error';
+    submitButton.disabled = true;
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    formMessage.textContent = '';
+
+    const valorTotal = Number(valorTotalMask.unmaskedValue) || 0;
+    const valorEntrada = Number(valorEntradaMask.unmaskedValue) || 0;
+
+    if (valorEntrada > valorTotal) {
+      formMessage.textContent = 'O valor de entrada não pode ser maior que o valor total.';
+      formMessage.className = 'form-message error';
+      valorEntradaInput.focus();
+      return;
+    }
+
+    const payload = {
+      data_recibo: dataReciboInput.value,
+      nome: form.elements.nome.value.trim(),
+      contato: form.elements.contato.value.trim() || null,
+      cor: form.elements.cor.value.trim() || null,
+      modelo: form.elements.modelo.value.trim() || null,
+      quantidade: Number(form.elements.quantidade.value) || 1,
+      material: form.elements.material.value.trim() || null,
+      valor_total: valorTotal,
+      valor_entrada: valorEntrada,
+      tipo_pagamento: form.elements.tipoPagamento.value || null,
+      dia_prova: form.elements.diaProva.value || null,
+      hora_prova: form.elements.horaProva.value || null,
+      data_entrega: form.elements.dataEntrega.value || null,
+      hora_entrega: form.elements.horaEntrega.value || null,
+      superior: form.elements.superior.checked,
+      inferior: form.elements.inferior.checked
     };
 
-    const valorTotalMask = IMask(valorTotalInput, maskOptions);
-    const valorEntradaMask = IMask(valorEntradaInput, maskOptions);
-    // =====================================================================
+    submitButton.disabled = true;
+    submitButton.textContent = reciboId ? 'Atualizando...' : 'Salvando...';
 
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
-    dataReciboInput.value = formattedDate;
-
-    function formatarValorParaDisplay(valor) {
-        const numericValue = parseFloat(valor);
-        if (isNaN(numericValue)) return "R$ 0,00";
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(numericValue);
-    }
-    
-    function calcularValorRestante() {
-        const valorTotal = parseFloat(valorTotalMask.unmaskedValue) || 0;
-        const valorEntrada = parseFloat(valorEntradaMask.unmaskedValue) || 0;
-        const valorRestante = valorTotal - valorEntrada;
-        
-        valorRestanteInput.value = formatarValorParaDisplay(valorRestante);
-    }
-    
-    valorTotalInput.addEventListener('input', calcularValorRestante);
-    valorEntradaInput.addEventListener('input', calcularValorRestante);
-
-    let recibos = [];
     try {
-        const response = await fetch(API_URL_RECIBOS);
-        if (!response.ok) throw new Error('Erro ao carregar dados da API de recibos.');
-        recibos = await response.json();
+      const saved = reciboId
+        ? await window.PMData.updateRecibo(reciboId, payload)
+        : await window.PMData.createRecibo(payload);
+
+      formMessage.textContent = `Recibo Nº ${saved.numero} salvo com sucesso.`;
+      formMessage.className = 'form-message success';
+
+      window.setTimeout(() => {
+        window.location.href = 'recibos.html';
+      }, 500);
     } catch (error) {
-        console.error("Falha ao carregar os recibos:", error);
+      console.error('Erro ao salvar recibo:', error);
+      formMessage.textContent =
+        error.message || 'Não foi possível salvar o recibo.';
+      formMessage.className = 'form-message error';
+      submitButton.disabled = false;
+      submitButton.textContent = reciboId ? 'Atualizar recibo' : 'Salvar recibo';
     }
-
-    if (reciboId) {
-        const recibo = recibos.find(r => r.id === parseInt(reciboId));
-        if (recibo) {
-            form.querySelector('button[type="submit"]').textContent = 'Atualizar';
-            form.elements['nome'].value = recibo.nome || '';
-            
-            valorTotalMask.value = String(recibo.valorTotal || '').replace('.', ',');
-            valorEntradaMask.value = String(recibo.valorEntrada || '').replace('.', ',');
-            
-            form.elements['contato'].value = recibo.contato || '';
-            form.elements['cor'].value = recibo.cor || '';
-            form.elements['modelo'].value = recibo.modelo || '';
-            form.elements['quantidade'].value = recibo.quantidade || '';
-            form.elements['material'].value = recibo.material || '';
-            tipoPagamentoInput.value = recibo.tipoPagamento || '';
-            form.elements['diaProva'].value = recibo.diaProva ? recibo.diaProva.substring(0, 10) : '';
-            form.elements['horaProva'].value = recibo.horaProva || '';
-            form.elements['dataEntrega'].value = recibo.dataEntrega ? recibo.dataEntrega.substring(0, 10) : '';
-            form.elements['horaEntrega'].value = recibo.horaEntrega || '';
-            form.elements['superior'].checked = !!recibo.superior;
-            form.elements['inferior'].checked = !!recibo.inferior;
-            reciboInput.value = recibo.recibo || '';
-            
-            calcularValorRestante();
-        } else {
-            alert("Recibo não encontrado!");
-            window.location.href = 'recibos.html';
-        }
-    } else {
-        const ultimoRecibo = recibos.length > 0 ? Math.max(...recibos.map(r => parseInt(r.recibo) || 0)) : 0;
-        reciboInput.value = ultimoRecibo + 1;
-    }
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const valorRestanteCalculado = (parseFloat(valorTotalMask.unmaskedValue) || 0) - (parseFloat(valorEntradaMask.unmaskedValue) || 0);
-
-        const dataRecibo = {
-            id: reciboId ? parseInt(reciboId) : Date.now(),
-            dataRecibo: dataReciboInput.value,
-            valorTotal: parseFloat(valorTotalMask.unmaskedValue) || 0,
-            valorEntrada: parseFloat(valorEntradaMask.unmaskedValue) || 0,
-            valorRestante: valorRestanteCalculado,
-            nome: form.elements['nome'].value,
-            contato: form.elements['contato'].value,
-            cor: form.elements['cor'].value,
-            modelo: form.elements['modelo'].value,
-            quantidade: form.elements['quantidade'].value,
-            material: form.elements['material'].value,
-            tipoPagamento: tipoPagamentoInput.value,
-            diaProva: form.elements['diaProva'].value,
-            horaProva: form.elements['horaProva'].value,
-            dataEntrega: form.elements['dataEntrega'].value,
-            horaEntrega: form.elements['horaEntrega'].value,
-            superior: form.elements['superior'].checked,
-            inferior: form.elements['inferior'].checked,
-            recibo: reciboInput.value
-        };
-
-        try {
-            const action = reciboId ? 'edit' : 'add';
-            const payloadRecibo = { action, ...dataRecibo };
-
-            const responseRecibo = await fetch(API_URL_RECIBOS, {
-                method: 'POST',
-                body: JSON.stringify(payloadRecibo),
-                headers: { 'Content-Type': 'text/plain' }
-            });
-            if (!responseRecibo.ok) throw new Error("Falha ao salvar o recibo.");
-
-            alert('Recibo salvo com sucesso!');
-
-            if (action === 'add') {
-                const statusConta = dataRecibo.valorRestante > 0 ? 'A receber' : 'Recebido';
-                const dataContaAReceber = {
-                    action: 'addContaAReceber',
-                    id: Date.now(),
-                    vencimento: dataRecibo.dataEntrega || dataRecibo.dataRecibo,
-                    cliente: dataRecibo.nome,
-                    valor: dataRecibo.valorRestante,
-                    descricao: `Referente ao recibo Nº ${dataRecibo.recibo}`,
-                    status: statusConta,
-                    reciboId: dataRecibo.id
-                };
-
-                console.log("Enviando para API Financeiro:", dataContaAReceber);
-
-                try {
-                    const responseFinanceiro = await fetch(API_URL_FINANCEIRO, {
-                        method: 'POST',
-                        body: JSON.stringify(dataContaAReceber),
-                        headers: { 'Content-Type': 'text/plain' }
-                    });
-                    
-                    const resultFinanceiro = await responseFinanceiro.json();
-                    console.log("Resposta da API Financeiro:", resultFinanceiro);
-
-                    if (!resultFinanceiro.success) {
-                        throw new Error(resultFinanceiro.message);
-                    }
-                    
-                } catch (financeiroError) {
-                    console.error("Erro ao criar conta a receber:", financeiroError);
-                    alert("O recibo foi salvo, mas houve um erro ao criar o título no financeiro: " + financeiroError.message);
-                }
-            }
-            
-            window.location.href = 'recibos.html';
-
-        } catch (error) {
-            alert(`Erro: ${error.message}`);
-            console.error("Erro ao processar formulário:", error);
-        }
-    });
+  });
 });

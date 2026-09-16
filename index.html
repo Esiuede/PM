@@ -2,70 +2,58 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Sheyla Cavalcanti</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
   <link rel="stylesheet" href="style_full.css">
   <link rel="shortcut icon" type="image/x-icon" href="./imgs/minIcon.jpg">
 </head>
-<body>
-  <header class="header">
-    <div class="brand">
+<body class="login-page">
+  <main class="login-shell">
+    <section class="login-brand" aria-label="Sheyla Cavalcanti Laboratório de Prótese Dentária">
+      <img src="./imgs/logo.jpg" alt="" class="login-logo">
       <div>
-        <div class="brand-title">Sheyla Cavalcanti</div>
-        <div class="brand-sub">Laboratório de Prótese Dentária</div>
+        <p class="eyebrow">Laboratório de Prótese Dentária</p>
+        <h1>Sheyla Cavalcanti</h1>
+        <p class="login-description">Gestão de recibos, agenda e financeiro em um só lugar.</p>
       </div>
-    </div>
-  </header>
+    </section>
 
-  <form id="loginForm">
+    <section class="login-card">
+      <div class="login-card-header">
+        <h2>Acessar sistema</h2>
+        <p>Entre com o usuário cadastrado no Supabase.</p>
+      </div>
 
-    <label for="login">Login:</label>
-    <input type="text" id="login" name="login" placeholder="Digite seu login" required>
+      <form id="loginForm" class="login-form">
+        <label for="login">E-mail</label>
+        <input
+          type="email"
+          id="login"
+          name="login"
+          placeholder="seu@email.com"
+          autocomplete="username"
+          required
+        >
 
-    <label for="senha">Senha:</label>
-    <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+        <label for="senha">Senha</label>
+        <input
+          type="password"
+          id="senha"
+          name="senha"
+          placeholder="Digite sua senha"
+          autocomplete="current-password"
+          minlength="6"
+          required
+        >
 
-    <button type="submit">Entrar</button>
-    <p id="erro" style="color:red; text-align:center; margin-top:10px;"></p>
-  </form>
+        <button type="submit" class="primary-submit">Entrar</button>
+        <p id="erro" class="form-message error" role="alert"></p>
+      </form>
+    </section>
+  </main>
 
-  <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzI55kqGgZg0Y8aRxR24vF6hAjekmDP7elhE6IiXOmNp1ReraCZq5AwsVi_676bR_p_/exec';
-    
-    document.getElementById("loginForm").addEventListener("submit", async function(e) {
-      e.preventDefault();
-
-      const login = document.getElementById("login").value;
-      const senha = document.getElementById("senha").value;
-      const erro = document.getElementById("erro");
-      
-      const payload = {
-        action: 'login',
-        login: login,
-        senha: senha
-      };
-
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify(payload),
-          headers: {
-            'Content-Type': 'text/plain'
-          }
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          window.location.href = "menu.html";
-        } else {
-          erro.textContent = "Login ou senha incorretos!";
-        }
-      } catch (error) {
-        erro.textContent = "Erro na conexão. Tente novamente.";
-        console.error("Erro de login:", error);
-      }
-    });
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="login.js"></script>
 </body>
 </html>

@@ -1,199 +1,204 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // ######################################################################
-    // CERTIFIQUE-SE DE QUE A URL DO SEU SCRIPT DO FINANCEIRO ESTÁ AQUI
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyvTJfLnL_fHdpWGRAw9JpFSPcNhZvdZ6PKQ9YHuQX7lBoJ_d_q-CuFLZtDdmLKyuipyA/exec';
-    // ######################################################################
+document.addEventListener('DOMContentLoaded', async () => {
+  const auth = await window.pmAuthReady;
+  if (!auth.authenticated) return;
 
-    // --- Elementos do DOM (Modal de Contas) ---
-    const tableBody = document.getElementById('contasReceberTable').querySelector('tbody');
-    const modal = document.getElementById('contaModal');
-    const addContaBtn = document.getElementById('addContaBtn');
-    const closeBtn = modal.querySelector('.close-btn');
-    const contaForm = document.getElementById('contaForm');
-    const modalTitle = document.getElementById('modalTitle');
-    const valorInput = document.getElementById('valor');
-    let allContas = [];
+  const tableBody = document.querySelector('#contasReceberTable tbody');
+  const modal = document.getElementById('contaModal');
+  const pixModal = document.getElementById('pixModal');
+  const addContaBtn = document.getElementById('addContaBtn');
+  const openPixModalBtn = document.getElementById('openPixModalBtn');
+  const closeContaBtn = modal.querySelector('.close-btn');
+  const closePixBtn = pixModal.querySelector('.close-btn');
+  const form = document.getElementById('contaForm');
+  const modalTitle = document.getElementById('modalTitle');
+  const valorInput = document.getElementById('valor');
+  const feedback = document.getElementById('tableFeedback');
+  let contas = [];
 
-    // --- Elementos do DOM (NOVO MODAL PIX) ---
-    const pixModal = document.getElementById('pixModal');
-    const openPixModalBtn = document.getElementById('openPixModalBtn');
-    const closePixBtn = pixModal.querySelector('.close-btn');
-
-
-    // --- MÁSCARA DE MOEDA (IMask.js) ---
-    const currencyMask = IMask(valorInput, {
-        mask: 'R$ num',
-        blocks: {
-            num: {
-                mask: Number,
-                scale: 2,
-                radix: ',',
-                mapToRadix: ['.'],
-                thousandsSeparator: '.',
-                padFractionalZeros: true
-            }
-        }
-    });
-    
-    // --- FUNÇÕES DE FORMATAÇÃO ---
-    function desformatarMoeda(value) {
-        if (!value) return 0;
-        currencyMask.unmaskedValue = value;
-        return parseFloat(currencyMask.unmaskedValue) || 0;
+  const currencyMask = IMask(valorInput, {
+    mask: 'R$ num',
+    blocks: {
+      num: {
+        mask: Number,
+        scale: 2,
+        radix: ',',
+        mapToRadix: ['.'],
+        thousandsSeparator: '.',
+        padFractionalZeros: true,
+        min: 0
+      }
     }
-    
-    function formatarValorParaDisplay(valor) {
-        const numericValue = parseFloat(valor);
-        if (isNaN(numericValue)) return "R$ 0,00";
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(numericValue);
+  });
+
+  const formatCurrency = (value) =>
+    new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(Number(value) || 0);
+
+  const formatDate = (value) =>
+    value ? new Date(`${value}T00:00:00`).toLocaleDateString('pt-BR') : 'N/A';
+
+  function statusClass(status) {
+    return (status || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '-');
+  }
+
+  function openModal(conta = null) {
+    form.reset();
+    currencyMask.value = '';
+    document.getElementById('contaId').value = '';
+
+    if (conta) {
+      modalTitle.textContent = 'Editar Conta a Receber';
+      document.getElementById('contaId').value = conta.id;
+      document.getElementById('vencimento').value = conta.vencimento || '';
+      document.getElementById('cliente').value = conta.cliente || '';
+      currencyMask.value = String(conta.valor || 0).replace('.', ',');
+      document.getElementById('descricao').value = conta.descricao || '';
+      document.getElementById('status').value = conta.status || 'A receber';
+
+      const linkedNotice = document.getElementById('linkedReceiptNotice');
+      if (conta.recibo_id) {
+        linkedNotice.hidden = false;
+        linkedNotice.textContent =
+          'Esta conta foi gerada por um recibo. Alterações financeiras do recibo sincronizam este título.';
+      } else {
+        linkedNotice.hidden = true;
+      }
+    } else {
+      modalTitle.textContent = 'Adicionar Nova Conta a Receber';
+      document.getElementById('linkedReceiptNotice').hidden = true;
     }
 
-    // --- LÓGICA DO MODAL (Adicionar Conta) ---
-    const openModal = (conta = null) => {
-        contaForm.reset();
-        currencyMask.value = '';
-        if (conta) {
-            modalTitle.textContent = 'Editar Conta a Receber';
-            document.getElementById('contaId').value = conta.id;
-            document.getElementById('vencimento').value = conta.vencimento ? conta.vencimento.substring(0, 10) : '';
-            document.getElementById('cliente').value = conta.cliente;
-            currencyMask.value = String(conta.valor || '0').replace('.', ',');
-            document.getElementById('descricao').value = conta.descricao;
-            document.getElementById('status').value = conta.status;
-        } else {
-            modalTitle.textContent = 'Adicionar Nova Conta a Receber';
-            document.getElementById('contaId').value = '';
-        }
-        modal.style.display = 'block';
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeModal() {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  function openPixModal() {
+    pixModal.classList.add('is-open');
+    pixModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closePixModal() {
+    pixModal.classList.remove('is-open');
+    pixModal.setAttribute('aria-hidden', 'true');
+  }
+
+  function addCell(row, value) {
+    const cell = document.createElement('td');
+    cell.textContent = value ?? '';
+    row.appendChild(cell);
+  }
+
+  function render() {
+    tableBody.replaceChildren();
+
+    if (!contas.length) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 6;
+      cell.className = 'table-empty';
+      cell.textContent = 'Nenhuma conta a receber encontrada.';
+      row.appendChild(cell);
+      tableBody.appendChild(row);
+      return;
+    }
+
+    for (const conta of contas) {
+      const row = document.createElement('tr');
+      row.className = `status-${statusClass(conta.status)}`;
+
+      addCell(row, formatDate(conta.vencimento));
+      addCell(row, conta.cliente || '');
+      addCell(row, conta.descricao || '');
+      addCell(row, formatCurrency(conta.valor));
+
+      const statusCell = document.createElement('td');
+      const tag = document.createElement('span');
+      tag.className = 'status-tag';
+      tag.textContent = conta.status || 'N/A';
+      statusCell.appendChild(tag);
+      row.appendChild(statusCell);
+
+      const actions = document.createElement('td');
+      actions.className = 'actions-cell';
+
+      const edit = document.createElement('button');
+      edit.type = 'button';
+      edit.className = 'action-btn edit-btn';
+      edit.textContent = 'Editar';
+      edit.addEventListener('click', () => openModal(conta));
+
+      actions.appendChild(edit);
+      row.appendChild(actions);
+      tableBody.appendChild(row);
+    }
+  }
+
+  async function load() {
+    try {
+      contas = await window.PMData.listContasReceber();
+      render();
+    } catch (error) {
+      console.error('Erro ao carregar contas a receber:', error);
+      tableBody.innerHTML =
+        '<tr><td colspan="6" class="table-empty error-state">Não foi possível carregar as contas.</td></tr>';
+    }
+  }
+
+  addContaBtn.addEventListener('click', () => openModal());
+  openPixModalBtn.addEventListener('click', openPixModal);
+  closeContaBtn.addEventListener('click', closeModal);
+  closePixBtn.addEventListener('click', closePixModal);
+
+  window.addEventListener('click', (event) => {
+    if (event.target === modal) closeModal();
+    if (event.target === pixModal) closePixModal();
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const id = document.getElementById('contaId').value || null;
+    const original = id ? contas.find((item) => item.id === id) : null;
+
+    const payload = {
+      vencimento: document.getElementById('vencimento').value,
+      cliente: document.getElementById('cliente').value.trim(),
+      valor: Number(currencyMask.unmaskedValue) || 0,
+      descricao: document.getElementById('descricao').value.trim() || null,
+      status: document.getElementById('status').value,
+      recibo_id: original?.recibo_id || null
     };
-    const closeModal = () => modal.style.display = 'none';
 
-    addContaBtn.addEventListener('click', () => openModal());
-    closeBtn.addEventListener('click', closeModal);
+    const button = form.querySelector('button[type="submit"]');
+    button.disabled = true;
+    button.textContent = 'Salvando...';
 
-    // --- LÓGICA DO MODAL (QRCODE PIX) ---
-    openPixModalBtn.addEventListener('click', () => {
-        pixModal.style.display = 'block';
-    });
-    closePixBtn.addEventListener('click', () => {
-        pixModal.style.display = 'none';
-    });
-
-
-    // --- Fechar modals ao clicar fora ---
-    window.addEventListener('click', (event) => { 
-        if (event.target === modal) closeModal(); 
-        if (event.target === pixModal) {
-            pixModal.style.display = 'none';
-        }
-    });
-
-    // --- CARREGAR E RENDERIZAR DADOS ---
-    async function carregarContas() {
-        try {
-            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">A carregar...</td></tr>`;
-            const response = await fetch(`${API_URL}?action=getContasAReceber`);
-            if (!response.ok) throw new Error('Falha ao carregar contas a receber.');
-            allContas = await response.json();
-            renderTable(allContas);
-        } catch (error) {
-            console.error('Erro:', error);
-            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${error.message}</td></tr>`;
-        }
+    try {
+      await window.PMData.saveContaReceber(id, payload);
+      closeModal();
+      await load();
+      feedback.textContent = 'Conta salva com sucesso.';
+      feedback.className = 'inline-feedback success';
+    } catch (error) {
+      console.error('Erro ao salvar conta:', error);
+      feedback.textContent = 'Não foi possível salvar a conta.';
+      feedback.className = 'inline-feedback error';
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Salvar';
     }
+  });
 
-    function renderTable(contas) {
-        tableBody.innerHTML = '';
-        if (contas.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhuma conta a receber encontrada.</td></tr>';
-            return;
-        }
-
-        contas.sort((a, b) => new Date(a.vencimento) - new Date(b.vencimento));
-
-        contas.forEach(conta => {
-            if (!conta.id) return;
-
-            const row = document.createElement('tr');
-            const statusClass = (conta.status || '').toLowerCase().replace(/ /g, '-');
-            row.className = `status-${statusClass}`;
-            
-            row.innerHTML = `
-                <td>${conta.vencimento ? new Date(conta.vencimento).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'N/A'}</td>
-                <td>${conta.cliente || ''}</td>
-                <td>${conta.descricao || ''}</td>
-                <td>${formatarValorParaDisplay(conta.valor)}</td>
-                <td><span class="status-tag">${conta.status || 'N/A'}</span></td>
-                <td class="actions-cell">
-                    <button class="action-btn edit-btn" data-id="${conta.id}">Editar</button>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
-    }
-
-    // --- AÇÕES CRUD ---
-    contaForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('contaId').value;
-        
-        // CORREÇÃO: Define a ação correta se estiver a editar ou a adicionar
-        const action = id ? 'editContaAReceber' : 'addContaAReceber';
-
-        let reciboIdOriginal = 'Manual';
-        if (id) {
-            const contaOriginal = allContas.find(c => c.id === parseInt(id));
-            if (contaOriginal) {
-                reciboIdOriginal = contaOriginal.reciboId;
-            }
-        }
-
-        const data = {
-            action: action,
-            id: id ? parseInt(id) : Date.now(),
-            vencimento: document.getElementById('vencimento').value,
-            cliente: document.getElementById('cliente').value,
-            valor: desformatarMoeda(valorInput.value),
-            descricao: document.getElementById('descricao').value,
-            status: document.getElementById('status').value,
-            reciboId: reciboIdOriginal
-        };
-
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify(data),
-                headers: { 'Content-Type': 'text-plain' }
-            });
-            const result = await response.json();
-            if (!result.success) throw new Error(result.message);
-            
-            alert('Conta salva com sucesso!');
-            closeModal();
-            carregarContas();
-        } catch (error) {
-            alert(`Erro ao salvar: ${error.message}`);
-        }
-    });
-
-    tableBody.addEventListener('click', (e) => {
-        const target = e.target;
-        if (target.classList.contains('edit-btn')) {
-            const id = parseInt(target.dataset.id);
-            const conta = allContas.find(c => c.id === id);
-            if (conta) openModal(conta);
-        }
-    });
-    
-    // --- ESTILOS ADICIONAIS ---
-    const style = document.createElement('style');
-    style.innerHTML = `
-        .status-a-receber .status-tag { background-color: #f4a261; } /* Laranja */
-        .status-recebido .status-tag { background-color: #28a745; } /* Verde */
-        .status-em-atraso .status-tag { background-color: #e63946; } /* Vermelho */
-        .actions-cell { text-align: center; }
-    `;
-    document.head.appendChild(style);
-
-    carregarContas();
+  await load();
 });
